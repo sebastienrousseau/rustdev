@@ -1,0 +1,26 @@
+services:
+  rust-app:
+    image: rust-dev
+    build:
+      context: .
+      args:
+        - RUST_VERSION=1.84.1
+        - USERNAME=rustdev
+        - USER_HOME=/home/rustdev
+    env_file:
+      - .env
+    container_name: rust-dev
+    user: "1000:1000"
+    volumes:
+      - .:/home/rustdev/code
+    working_dir: /home/rustdev/code
+    stdin_open: true
+    tty: true
+    environment:
+      - RUSTUP_HOME=/usr/local/rustup
+      - CARGO_HOME=/usr/local/cargo
+      - PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH"
+      - RUST_VERSION=1.84.1
+      - USERNAME=rustdev
+      - USER_HOME=/home/rustdev
+    command: ["/bin/bash", "--login"]
