@@ -35,16 +35,15 @@ export CLICOLOR=1
 export LSCOLORS=gxBxhxDxfxhxhxhxhxcxcx
 
 # Color definitions
-CYAN='\033[01;36m'
-MAGENTA='\033[01;35m'
-BLUE='\033[01;34m'
-GREEN='\033[01;32m'
-YELLOW='\033[01;33m'
-RED='\033[01;31m'
-WHITE='\033[01;37m'
-RESET='\e[0m'
-BG_BLUE='\033[44m'
-
+RED=$'\e[31m'
+GREEN=$'\e[32m'
+YELLOW=$'\e[33m'
+BLUE=$'\e[34m'
+MAGENTA=$'\e[35m'
+CYAN=$'\e[36m'
+BG_BLUE=$'\e[44m'
+WHITE=$'\e[37m'
+RESET=$'\e[0m'
 # Print centered text
 print_centered() {
     local text="$1"
@@ -140,16 +139,16 @@ show_help_menu() {
         return
     }
 
-    # File & Editor Commands
+    # File & Editor Commands (Using Neovim)
     print_help_section "File & Editor Commands" \
-        "e" "Edit file(s) using vim" \
+        "e" "Edit file(s) using nvim" \
         "l" "List files" \
         "la" "List all files" \
         "ll" "Detailed listing" \
         "lf" "List non-directory files" \
         "lt" "List files sorted by time" \
         "ltr" "Reverse time-sorted listing" \
-        "v" "Edit file(s) using vim"
+        "v" "Edit file(s) using nvim"
     prompt_next || {
         system_info
         return
@@ -170,8 +169,8 @@ show_help_menu() {
     # System Commands
     print_help_section "System Commands" \
         "c" "Clear screen" \
-        "ea" "Edit bash aliases" \
-        "eb" "Edit bash configuration" \
+        "ea" "Edit bash aliases using nvim" \
+        "eb" "Edit bash configuration using nvim" \
         "h" "Show history" \
         "kkill" "Kill process by name" \
         "p" "List processes" \
@@ -215,17 +214,17 @@ system_info() {
     local swap_total swap_used swap_free swap_usage
     swap_total=$(awk '/^[Ss]wap/{printf "%.2f", $2/1073741824}' <<<"${mem}")
     swap_used=$(awk '/^[Ss]wap/{printf "%.2f", $3/1073741824}' <<<"${mem}")
-    swap_free=$(awk '/^[Ss]wap/{printf "%.2f", $4/1073741824}' <<<"${mem}")
+    swap_free=$(awk '/^[Ss]wap/{printf "%.2f", $4/1073741824}' <<<="${mem}")
     swap_usage=$(awk '/Swap/ {printf("%3.1f%%", $3/$2*100)}' <<<"${mem}")
 
     # System information
     local ip4 kernel system_load root_used procs users
-    ip4=$(ip addr show | grep -v inet6 | grep inet | awk 'NR==2 {print $2}' | cut -d/ -f 1)
+    ip4=$(hostname -i | awk '{print $1}')
     kernel=$(uname -r | sed 's/-ar.*$//')
     system_load=$(awk '{print $1}' /proc/loadavg)
     root_used=$(df -h / | awk '/\// {print $(NF-1)}')
     procs=$(ps aux | wc -l)
-    users=$(users | wc -w)
+    users=$(whoami)
 
     # Color threshold function
     color_by_threshold() {
@@ -252,27 +251,12 @@ system_info() {
     # Display information
     clear
     local centered_text
-    centered_text=$(print_centered "WELCOME TO RUST-DEV CONTAINER") || true
+    centered_text="\t\t\tRUSTDEV\t\t\t\t"
     echo -e "${BG_BLUE}${WHITE}${centered_text}${RESET}"
     local machine_info
     machine_info=$(uname -m) || true
-    echo -e "${CYAN}Version: ${BLUE}1.0${RESET} - Linux ${kernel} (${machine_info})"
-    echo
-    echo -e "┌ ${MAGENTA}RAM:${RESET}\t\t\t┌ ${MAGENTA}SWAP:${RESET}"
-    echo -e "├─ Used: ${RED}${mem_used}GB${RESET}\t\t├─ Used: ${RED}${swap_used}GB${RESET}"
-    echo -e "├─ Free: ${GREEN}${mem_free}GB${RESET}\t\t├─ Free: ${GREEN}${swap_free}GB${RESET}"
-    echo -e "├─ Shared: ${mem_shared}GB\t└─ Total: ${swap_total}GB"
-    echo -e "├─ Cached: ${GREEN}${mem_cached}GB${RESET}"
-    echo -e "├─ Available: ${GREEN}${mem_available}GB${RESET}"
-    echo -e "└─ Total: ${mem_total}GB"
-    echo
-    echo -e "┌ ${MAGENTA}System:${RESET}\t\t┌ ${MAGENTA}Disk:${RESET}"
-    echo -e "├─ System load: ${colored_system_load}\t├─ Processes: ${procs}"
-    echo -e "├─ Usage of /: ${colored_root_used}\t├─ Users logged in: ${users}"
-    echo -e "├─ Memory usage: ${colored_mem_usage}\t└─ IP address: ${ip4}"
-    echo -e "└─ Swap usage: ${colored_swap_usage}"
-    echo
-    echo -e "${YELLOW}Type 'help' for available commands or type 'c' and press Enter to clear screen${RESET}"
+
+    echo -e "${MAGENTA}Version:${RESET} ${CYAN}1.0 ${MAGENTA}Kernel:${RESET}Linux ${kernel} (${machine_info})${RESET}"
     echo
 }
 

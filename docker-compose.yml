@@ -1,26 +1,41 @@
 services:
   rust-app:
+    # Name your final image if you like
     image: rust-dev
+    container_name: rust-dev
+
+    # Use the Dockerfile in the current directory
     build:
       context: .
+      # Pass build-time args from the .env (substitution):
       args:
-        - RUST_VERSION=1.84.1
-        - USERNAME=rustdev
-        - USER_HOME=/home/rustdev
+        RUST_VERSION: "${RUST_VERSION}"
+        USERNAME: "${USERNAME}"
+        USER_HOME: "${USER_HOME}"
+
+    # Instruct Docker Compose to load environment variables from .env
     env_file:
       - .env
-    container_name: rust-dev
+
+    # Drop privileges to user 1000:1000 inside container
     user: "1000:1000"
-    volumes:
-      - .:/home/rustdev/code
-    working_dir: /home/rustdev/code
+
+    # Default working directory inside the container
+    working_dir: "/home/rustdev/code"
+
+    # Keep STDIN open and allocate a pseudo-TTY (handy for interactive dev)
     stdin_open: true
     tty: true
+
+    # Pass environment variables to the container at runtime
+    # referencing the same .env variables
     environment:
-      - RUSTUP_HOME=/usr/local/rustup
-      - CARGO_HOME=/usr/local/cargo
-      - PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH"
-      - RUST_VERSION=1.84.1
-      - USERNAME=rustdev
-      - USER_HOME=/home/rustdev
+      RUSTUP_HOME: "${RUSTUP_HOME}"
+      CARGO_HOME: "${CARGO_HOME}"
+      PATH: "${PATH}"
+      RUST_VERSION: "${RUST_VERSION}"
+      USERNAME: "${USERNAME}"
+      USER_HOME: "${USER_HOME}"
+
+    # Default command to run on container start
     command: ["/bin/bash", "--login"]

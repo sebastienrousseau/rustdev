@@ -76,12 +76,12 @@ kkill() {
 }
 
 ##############################
-# Editor Commands ✏️
+# Editor Commands ✏️ (Using Neovim)
 ##############################
-alias e='color_out "📝" "Opening editor..." && vim'
-alias v='color_out "📝" "Opening editor..." && vim'
-alias ea='color_out "📝" "Editing aliases..." && vim ~/.bash_aliases && source ~/.bash_aliases && color_out "🔄" "Aliases updated"'
-alias eb='color_out "📝" "Editing bashrc..." && vim ~/.bashrc && source ~/.bashrc && color_out "🔄" "Bashrc updated"'
+alias e='color_out "📝" "Opening editor..." && nvim'
+alias v='color_out "📝" "Opening editor..." && nvim'
+alias ea='color_out "📝" "Editing aliases..." && nvim ~/.bash_aliases && source ~/.bash_aliases && color_out "🔄" "Aliases updated"'
+alias eb='color_out "📝" "Editing bashrc..." && nvim ~/.bashrc && source ~/.bashrc && color_out "🔄" "Bashrc updated"'
 alias r='color_out "🔄" "Reloading configuration..." && . ~/.bashrc'
 
 ##############################
