@@ -1,6 +1,5 @@
 {
     "conventionalCommits.scopes": [
-        "add neovim configuration and tweaks",
         "rustdev"
     ]
 }
