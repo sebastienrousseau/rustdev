@@ -204,6 +204,7 @@ COPY --chown=$USERNAME:$USERNAME plugins/disabled.lua $USERHOME/.config/nvim/lua
 COPY --chown=$USERNAME:$USERNAME plugins/ui.lua       $USERHOME/.config/nvim/lua/plugins/ui.lua
 COPY --chown=$USERNAME:$USERNAME plugins/coding.lua   $USERHOME/.config/nvim/lua/plugins/coding.lua
 COPY --chown=$USERNAME:$USERNAME plugins/toggleterm.lua $USERHOME/.config/nvim/lua/plugins/toggleterm.lua
+COPY --chown=$USERNAME:$USERNAME plugins/telescope.lua $USERHOME/.config/nvim/lua/plugins/telescope.lua
 
 # -----------------------------------------------------------------------------
 # Remove any unused .cargo directory that was copied or remains from earlier

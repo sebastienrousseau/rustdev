@@ -23,267 +23,198 @@ color_out() {
 }
 
 ##############################
-# Navigation Commands 🧭
+# Navigation Commands (prefix: n)
 ##############################
-alias -- -='color_out "🔄" "Previous directory:" && cd -'
-alias ..='color_out "📂" "Moving up:" && cd ..'
-alias ...='color_out "📂" "Moving up two levels:" && cd ../..'
-alias cd..='color_out "📂" "Moving up:" && cd ..'
-alias '~'='color_out "🏠" "Going home:" && cd ~'
-alias d='color_out "📚" "Directory stack:" && dirs -v'
-
-# Exit shell with farewell
-x() {
-    color_out "👋" "Goodbye! Have a great day!"
-    exit
-}
+# Remove conflicting legacy aliases and define the ones used in the help menu.
+alias nh='color_out "🏠" "Going home:" && cd ~'
+alias n1='color_out "📂" "Moving up one level:" && cd ..'
+alias n2='color_out "📂" "Moving up two levels:" && cd ../..'
 
 ##############################
-# File Operations 📁
+# File Operations (prefix: l)
 ##############################
-# Modern ls alternatives with icons and colors
 alias l='color_out "📋" "File listing:" && ls -lFh --color=auto --group-directories-first'
 alias la='color_out "📋" "All files:" && ls -AlFh --color=auto --group-directories-first'
+alias ld='color_out "📁" "Listing directories:" && ls -d */'
 alias lf='color_out "📄" "Files only:" && ls -l --color=auto | grep -v "^d"'
 alias ll='color_out "📋" "Detailed listing:" && ls -lAFh --color=auto --group-directories-first'
 alias lt='color_out "⏲️" "Time-sorted:" && ls -ltrFh --color=auto'
-alias ltr='color_out "⏲️" "Reverse time-sorted:" && ls -ltFh --color=auto --reverse'
+alias lr='color_out "⏲️" "Reverse time-sorted:" && ls -ltFh --color=auto --reverse'
 
 ##############################
-# System Management 🖥️
+# System Management (no prefix)
 ##############################
-# Clear and process management
+alias a='color_out "📝" "Editing aliases..." && nvim ~/.bash_aliases && source ~/.bash_aliases && color_out "🔄" "Aliases updated"'
+alias b='color_out "📝" "Editing bashrc..." && nvim ~/.bashrc && source ~/.bashrc && color_out "🔄" "Bashrc updated"'
 alias c='color_out "🧹" "Clearing screen..." && clear && printf "\e[3J"'
-alias h='color_out "📜" "Command history:" && history'
-alias p='color_out "⚙️" "Process list:" && ps aux'
-
-# System monitoring
-alias t='color_out "📊" "Opening system monitor..." && btop'
-
-# Process management
-kkill() {
-    if [[ -z "$1" ]]; then
-        color_out "❌" "Please specify a process name" "${RED}"
-        return 1
-    fi
-    color_out "🎯" "Attempting to terminate: $1" "${YELLOW}"
-    if pkill "$1"; then
-        color_out "✅" "Successfully terminated: $1" "${GREEN}"
-    else
-        color_out "❌" "No process found: $1" "${RED}"
-        return 1
-    fi
-}
-
-##############################
-# Editor Commands ✏️ (Using Neovim)
-##############################
+alias d='color_out "🗑️" "Deleting file:" && rm'
 alias e='color_out "📝" "Opening editor..." && nvim'
-alias v='color_out "📝" "Opening editor..." && nvim'
-alias ea='color_out "📝" "Editing aliases..." && nvim ~/.bash_aliases && source ~/.bash_aliases && color_out "🔄" "Aliases updated"'
-alias eb='color_out "📝" "Editing bashrc..." && nvim ~/.bashrc && source ~/.bashrc && color_out "🔄" "Bashrc updated"'
+alias p='color_out "⚙️" "Process list:" && ps aux'
+alias q='color_out "👋" "Exiting shell..." && exit'
 alias r='color_out "🔄" "Reloading configuration..." && . ~/.bashrc'
+alias v='color_out "📝" "Opening editor..." && nvim'
+alias x='color_out "👋" "Exiting shell..." && exit'
 
 ##############################
-# Git Commands 🌿
+# Git Commands (prefix: g)
 ##############################
 if command -v git >/dev/null 2>&1; then
-    # Basic git commands
     alias g='git'
     alias ga='color_out "📦" "Staging changes..." && git add --all && color_out "✅" "Changes staged"'
+    # Rename pull alias from "gpl" to "gq" as per help menu:
+    alias gq='color_out "⬇️" "Pulling changes..." && git pull && color_out "✅" "Changes pulled"'
+    # Rename status alias to "gs":
+    alias gs='color_out "📊" "Repository status:" && git status'
     alias gp='color_out "⬆️" "Pushing changes..." && git push && color_out "✅" "Changes pushed"'
-    alias gpl='color_out "⬇️" "Pulling changes..." && git pull && color_out "✅" "Changes pulled"'
-    alias gst='color_out "📊" "Repository status:" && git status'
+    alias gg='color_out "📊" "Git log graph:" && git log --oneline --graph --decorate --all --color'
 
-    # Commit with message validation
+    # Git functions—rename to match help menu:
     gc() {
         if [[ -z "$1" ]]; then
-            color_out "❌" "Please provide a commit message" "${RED}"
+            color_out "❌" "Please provide a commit message" "$RED"
             return 1
         fi
-        color_out "💾" "Committing changes..." "${YELLOW}"
+        color_out "💾" "Committing changes..." "$YELLOW"
         if git commit -m "$*"; then
-            color_out "✅" "Committed: $*" "${GREEN}"
+            color_out "✅" "Committed: $*" "$GREEN"
         else
-            color_out "❌" "Commit failed" "${RED}"
+            color_out "❌" "Commit failed" "$RED"
             return 1
         fi
     }
-
-    # Branch operations
-    gco() {
-        color_out "🔄" "Switching to: $1" "${YELLOW}"
-        if git checkout "$1"; then
-            color_out "✅" "Switched to: $1" "${GREEN}"
-        else
-            color_out "❌" "Switch failed" "${RED}"
+    # "gb": Create & checkout branch (was gcb)
+    gb() {
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please provide a branch name" "$RED"
             return 1
         fi
-    }
-
-    gcb() {
-        color_out "🌱" "Creating branch: $1" "${YELLOW}"
+        color_out "🌱" "Creating branch: $1" "$YELLOW"
         if git checkout -b "$1"; then
-            color_out "✅" "Created and switched to: $1" "${GREEN}"
+            color_out "✅" "Created and switched to: $1" "$GREEN"
         else
-            color_out "❌" "Branch creation failed" "${RED}"
+            color_out "❌" "Branch creation failed" "$RED"
             return 1
         fi
     }
-
-    gbd() {
-        color_out "🗑️" "Deleting branch: $1" "${YELLOW}"
+    # "gk": Checkout branch (was gco)
+    gk() {
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please specify a branch" "$RED"
+            return 1
+        fi
+        color_out "🔄" "Switching to: $1" "$YELLOW"
+        if git checkout "$1"; then
+            color_out "✅" "Switched to: $1" "$GREEN"
+        else
+            color_out "❌" "Switch failed" "$RED"
+            return 1
+        fi
+    }
+    # "gd": Delete branch locally (was gbd)
+    gd() {
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please specify a branch to delete" "$RED"
+            return 1
+        fi
+        color_out "🗑️" "Deleting branch: $1" "$YELLOW"
         if git branch -d "$1"; then
-            color_out "✅" "Deleted: $1" "${GREEN}"
+            color_out "✅" "Deleted: $1" "$GREEN"
         else
-            color_out "❌" "Deletion failed" "${RED}"
+            color_out "❌" "Deletion failed" "$RED"
             return 1
         fi
     }
-
-    gbrd() {
-        color_out "🗑️" "Removing remote branch: $1" "${YELLOW}"
+    # "ge": Delete remote branch (was gbrd)
+    ge() {
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please specify a remote branch to remove" "$RED"
+            return 1
+        fi
+        color_out "🗑️" "Removing remote branch: $1" "$YELLOW"
         if git push origin --delete "$1"; then
-            color_out "✅" "Removed remote: $1" "${GREEN}"
+            color_out "✅" "Removed remote: $1" "$GREEN"
         else
-            color_out "❌" "Remote deletion failed" "${RED}"
+            color_out "❌" "Remote deletion failed" "$RED"
             return 1
         fi
     }
-
-    # Enhanced git prompt
-    git_prompt() {
-        if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            echo -e "${MAGENTA}❯${RESET} ${CYAN}\w${RESET} "
-            return
-        fi
-
-        local branch status symbols=""
-        branch=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --short HEAD)
-        status=$(git status --porcelain 2>/dev/null)
-
-        # Status indicators
-        [[ $(echo "$status" | grep -E "^.M") ]] && symbols+="📝"           # Modified
-        [[ $(echo "$status" | grep -E "^\?\?") ]] && symbols+="❓"         # Untracked
-        [[ $(echo "$status" | grep -E "^[MADRC]") ]] && symbols+="📦"      # Staged
-        git rev-parse --verify refs/stash >/dev/null 2>&1 && symbols+="📌" # Stashed
-
-        # Sync status
-        local ahead behind
-        ahead=$(git rev-list --count @{upstream}..HEAD 2>/dev/null)
-        behind=$(git rev-list --count HEAD..@{upstream} 2>/dev/null)
-        [[ -n "$ahead" && "$ahead" -gt 0 ]] && symbols+="⬆️"
-        [[ -n "$behind" && "$behind" -gt 0 ]] && symbols+="⬇️"
-
-        echo -e "${MAGENTA}❯${RESET} ${CYAN}\w${RESET} ${BLUE}[${branch}${symbols}]${RESET} "
-    }
-
-    # Branch management
-    MAIN_BRANCH=$(git branch -r 2>/dev/null | grep -E 'origin/(main|master)' | sed 's/origin\///' | head -n 1 || echo "main")
-
-    # Advanced git operations
-    gcm() {
-        color_out "🔄" "Rebasing on ${MAIN_BRANCH}..." "${YELLOW}"
-        if git checkout "${MAIN_BRANCH}" && git pull && git checkout "$1" && git rebase "${MAIN_BRANCH}"; then
-            color_out "✅" "Rebased $1 on ${MAIN_BRANCH}" "${GREEN}"
+    # "gm": Merge main/master (was gcf)
+    gm() {
+        color_out "🔄" "Merging $(git symbolic-ref --short HEAD) with remote main/master..." "$YELLOW"
+        if git checkout "$(git rev-parse --abbrev-ref HEAD)" && git pull && git merge origin/$(git rev-parse --abbrev-ref HEAD); then
+            color_out "✅" "Merge complete" "$GREEN"
         else
-            color_out "❌" "Rebase failed" "${RED}"
+            color_out "❌" "Merge failed" "$RED"
             return 1
         fi
     }
-
-    gcf() {
-        color_out "🔄" "Merging ${MAIN_BRANCH}..." "${YELLOW}"
-        if git checkout "${MAIN_BRANCH}" && git pull && git checkout "$1" && git merge "${MAIN_BRANCH}"; then
-            color_out "✅" "Merged ${MAIN_BRANCH} into $1" "${GREEN}"
-        else
-            color_out "❌" "Merge failed" "${RED}"
+    # "gr": Rebase branch (was gcm)
+    gr() {
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please specify a branch to rebase onto" "$RED"
             return 1
         fi
-    }
-
-    grb() {
-        color_out "🔄" "Rebasing on $1..." "${YELLOW}"
+        color_out "🔄" "Rebasing on $1..." "$YELLOW"
         if git rebase "$1"; then
-            color_out "✅" "Rebased on $1" "${GREEN}"
+            color_out "✅" "Rebased on $1" "$GREEN"
         else
-            color_out "❌" "Rebase failed" "${RED}"
+            color_out "❌" "Rebase failed" "$RED"
             return 1
         fi
     }
 
-    # Repository operations
-    gcl() {
-        color_out "📥" "Cloning repository..." "${YELLOW}"
-        if git clone "$1" && cd "$(basename "$1" .git)"; then
-            color_out "✅" "Repository cloned" "${GREEN}"
-        else
-            color_out "❌" "Clone failed" "${RED}"
-            return 1
-        fi
-    }
-
+    # Additional Git functions (not in help menu but available)
     gpr() {
         local BRANCH
         BRANCH=$(git rev-parse --abbrev-ref HEAD)
-        color_out "🔄" "Syncing ${BRANCH}..." "${YELLOW}"
+        color_out "🔄" "Syncing ${BRANCH}..." "$YELLOW"
         if git pull --rebase origin "${BRANCH}" && git push; then
-            color_out "✅" "Synced ${BRANCH}" "${GREEN}"
+            color_out "✅" "Synced ${BRANCH}" "$GREEN"
         else
-            color_out "❌" "Sync failed" "${RED}"
+            color_out "❌" "Sync failed" "$RED"
             return 1
         fi
     }
-
     gpo() {
-        color_out "⬆️" "Pushing to $1..." "${YELLOW}"
+        if [[ -z "$1" ]]; then
+            color_out "❌" "Please specify a branch for push" "$RED"
+            return 1
+        fi
+        color_out "⬆️" "Pushing to $1..." "$YELLOW"
         if git push origin "$1"; then
-            color_out "✅" "Pushed to $1" "${GREEN}"
+            color_out "✅" "Pushed to $1" "$GREEN"
         else
-            color_out "❌" "Push failed" "${RED}"
+            color_out "❌" "Push failed" "$RED"
             return 1
         fi
     }
-
-    # History management
-    alias gundo='color_out "↩️" "Undoing last commit..." && git reset --soft HEAD~1 && color_out "✅" "Last commit undone"'
-    alias greset='color_out "⚠️" "Resetting to remote..." && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD) && color_out "✅" "Reset complete"'
-    alias glog='color_out "📊" "Git log graph:" && git log --oneline --graph --decorate --all --color'
-    alias glast='color_out "🔍" "Last commit:" && git log -1 --stat'
 fi
 
 ##############################
-# Rust Development 🦀
+# Rust Development (Cargo) Commands (prefix: c)
 ##############################
 if command -v cargo >/dev/null 2>&1; then
-    # Project initialization
-    alias cg='color_out "🦀" "Cargo command:" && cargo'
-    alias cgn='color_out "🆕" "Creating new project..." && cargo new && color_out "✅" "Project created"'
-    alias cgi='color_out "🆕" "Initializing project..." && cargo init && color_out "✅" "Project initialized"'
-
-    # Build and run
-    alias cgb='color_out "🔨" "Building..." && cargo build && color_out "✅" "Build completed"'
-    alias cgbr='color_out "🚀" "Building release..." && cargo build --release && color_out "✅" "Release build completed"'
-    alias cgr='color_out "▶️" "Running..." && cargo run && color_out "✅" "Run complete"'
-    alias cgrr='color_out "🚀" "Running release..." && cargo run --release && color_out "✅" "Release run complete"'
-
-    # Development tools
-    alias cgt='color_out "🧪" "Running tests..." && cargo test && color_out "✅" "Tests completed"'
-    alias cgc='color_out "🔍" "Running Clippy..." && cargo clippy && color_out "✅" "Clippy check completed"'
-    alias cgf='color_out "✨" "Formatting..." && cargo fmt && color_out "✅" "Code formatted"'
-    alias cgx='color_out "🔧" "Fixing..." && cargo fix && color_out "✅" "Fixes applied"'
-
-    # Dependencies
-    alias cga='color_out "📦" "Adding dependency..." && cargo add && color_out "✅" "Dependency added"'
-    alias cgu='color_out "🔄" "Updating dependencies..." && cargo update && color_out "✅" "Dependencies updated"'
-    alias cgd='color_out "🌳" "Dependency tree:" && cargo tree --all-features'
+    # Remap Cargo commands to match help menu:
+    alias ca='color_out "📦" "Adding dependency..." && cargo add && color_out "✅" "Dependency added"'
+    alias cb='color_out "🔨" "Building project..." && cargo build && color_out "✅" "Build completed"'
+    alias cr='color_out "🚀" "Building project (release)..." && cargo build --release && color_out "✅" "Release build completed"'
+    alias cc='color_out "🔍" "Running Clippy..." && cargo clippy && color_out "✅" "Clippy check completed"'
+    alias cd='color_out "🌳" "Showing dependency tree:" && cargo tree --all-features'
+    alias cf='color_out "✨" "Formatting code..." && cargo fmt && color_out "✅" "Code formatted"'
+    alias ci='color_out "🆕" "Initializing project..." && cargo init && color_out "✅" "Project initialized"'
+    alias cn='color_out "🆕" "Creating new project..." && cargo new && color_out "✅" "Project created"'
+    alias cx='color_out "▶️" "Running project..." && cargo run && color_out "✅" "Run complete"'
+    alias cy='color_out "🚀" "Running project (release)..." && cargo run --release && color_out "✅" "Release run complete"'
+    alias ct='color_out "🧪" "Running tests..." && cargo test && color_out "✅" "Tests completed"'
+    alias cu='color_out "🔄" "Updating dependencies..." && cargo update && color_out "✅" "Dependencies updated"'
+    alias cz='color_out "🔧" "Applying fixes..." && cargo fix && color_out "✅" "Fixes applied"'
 fi
 
 ##############################
-# Rustup Commands 🛠️
+# Rustup Commands (prefix: r)
 ##############################
 if command -v rustup >/dev/null 2>&1; then
-    alias rca='color_out "📦" "Adding component..." && rustup component add && color_out "✅" "Component added"'
-    alias rde='color_out "⚡" "Setting default..." && rustup default && color_out "✅" "Default toolchain set"'
-    alias rdo='color_out "📚" "Opening documentation..." && rustup doc --open'
+    alias ra='color_out "📦" "Adding component..." && rustup component add && color_out "✅" "Component added"'
+    alias rd='color_out "⚡" "Setting default toolchain..." && rustup default && color_out "✅" "Default toolchain set"'
+    alias ro='color_out "📚" "Opening documentation..." && rustup doc --open'
 fi
