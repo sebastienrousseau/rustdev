@@ -1,8 +1,8 @@
 services:
   rust-app:
     # Name your final image if you like
-    image: rust-dev
-    container_name: rust-dev
+    image: rustdev
+    container_name: rustdev
 
     # Use the Dockerfile in the current directory
     build:
