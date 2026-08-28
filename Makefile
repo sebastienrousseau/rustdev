@@ -1,5 +1,5 @@
 # langdev Makefile — portable lifecycle for a <language>dev image.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 # Auto-detects docker or podman. Targets are disposable-first.
 .DEFAULT_GOAL := help
 SHELL := /usr/bin/env bash

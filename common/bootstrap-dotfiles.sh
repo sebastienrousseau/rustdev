@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # langdev — build-time dotfiles bootstrap.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Clones the user's chezmoi-managed dotfiles repo and applies it for the
 # current (build) user. Run as the `dev` user in the Containerfile so the

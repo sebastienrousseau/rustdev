@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Dependabot configuration for the langdev suite.
+#
+# Two ecosystems are tracked:
+#
+# 1. `github-actions` — every workflow under `.github/workflows/`
+#    and the template at `templates/github-workflows/`. Weekly
+#    runs. Updates the pin alongside the version tag so the CI
+#    supply chain stays reproducible.
+# 2. `docker` — the base images referenced from the Containerfile
+#    templates. Weekly runs. Surfaces a new digest as a PR so the
+#    pinned-by-digest base can be reviewed before it moves.
+#
+# Reference: https://docs.github.com/en/code-security/dependabot
+
+version: 2
+updates:
+  # ── GitHub Actions ──────────────────────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci"
+      include: scope
+    labels:
+      - dependencies
+      - github_actions
+    groups:
+      actions:
+        patterns:
+          - "actions/*"
+      docker-actions:
+        patterns:
+          - "docker/*"
+      security-actions:
+        patterns:
+          - "aquasecurity/*"
+          - "anchore/*"
+          - "hadolint/*"
+
+  # ── Container base images (Containerfile templates) ─────────────
+  - package-ecosystem: docker
+    directories:
+      - "/templates"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: UTC
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(containerfile)"
+      include: scope
+    labels:
+      - dependencies
+      - docker

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # langdev common entrypoint — strict, signal-safe, non-root.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Designed to run under an init (tini) via compose `init: true`, so it
 # does not need to reap zombies itself. It simply prepares the writable

@@ -1,5 +1,5 @@
 # /etc/profile.d/rust.sh — Rust language fragment (rustdev)
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Installed to /etc/profile.d (root-owned, 0644) and sourced by every login
 # shell via /etc/profile. Kept OUT of the user's chezmoi dotfiles so those stay

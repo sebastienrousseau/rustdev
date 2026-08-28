@@ -1,5 +1,5 @@
 -- rustdev — Rust language wiring for Neovim (langdev lang.lua)
--- SPDX-License-Identifier: MIT
+-- SPDX-License-Identifier: Apache-2.0 OR MIT
 --
 -- Dropped into the user's chezmoi-managed Neovim config at build time as
 -- nvim/plugins.local/lang.lua (auto-imported via the dotfiles' `plugins.local`

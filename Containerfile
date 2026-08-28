@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.9
 # rustdev Containerfile — OCI, builds with Docker AND Podman.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Multi-stage, hardened, ultra-small Rust dev image built on the langdev
 # foundation. The developer environment (shell, editor, tmux) is the USER'S
@@ -119,7 +119,7 @@ FROM alpine:${ALPINE_VERSION}@${ALPINE_DIGEST} AS base
 ARG USERNAME USER_UID USER_GID
 
 LABEL org.opencontainers.image.title="rustdev" \
-      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.licenses="Apache-2.0 OR MIT" \
       org.opencontainers.image.vendor="Sebastien Rousseau"
 
 # Runtime deps: editor, multiplexer (tmux — available by default), and the

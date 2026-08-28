@@ -1,5 +1,5 @@
 # langdev compose — fully hardened, disposable dev service.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 # Works with `docker compose` and `podman compose`/`podman-compose`.
 #
 # Security posture: non-root, all caps dropped, no new privileges,
