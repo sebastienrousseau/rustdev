@@ -1,10 +1,14 @@
 -- rustdev — Rust language wiring for Neovim (langdev lang.lua)
 -- SPDX-License-Identifier: MIT
 --
+-- Dropped into the user's chezmoi-managed Neovim config at build time as
+-- nvim/plugins.local/lang.lua (auto-imported via the dotfiles' `plugins.local`
+-- convention). This is the ONLY nvim change langdev makes — the rest of the
+-- editor is the user's own dotfiles.
+--
 -- rust-analyzer is installed at BUILD time by the toolchain stage (rustup
--- component) and lives on PATH at /opt/langdev/toolchain/cargo/bin. Mason
--- stays disabled (see common/nvim/plugins/disabled.lua): no network on first
--- launch, fully reproducible.
+-- component) and lives on PATH at /opt/langdev/toolchain/cargo/bin, so the LSP
+-- needs no Mason/network on first launch and stays reproducible.
 --
 -- Uses mrcjkb/rustaceanvim (the maintained successor to the archived
 -- simrat39/rust-tools.nvim). rustaceanvim configures rust-analyzer itself,

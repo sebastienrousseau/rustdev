@@ -31,4 +31,16 @@ if [ "$#" -gt 0 ]; then
   exec "$@"
 fi
 
+# tmux is available by default and LOADED for interactive sessions.
+# Attaches to (or creates) a persistent 'langdev' session so panes/windows
+# survive detach. Opt out with LANGDEV_NO_TMUX=1. Falls through to a plain
+# login shell when tmux is absent, output isn't a TTY, or we're already
+# inside tmux.
+if [ -z "${TMUX:-}" ] \
+   && [ "${LANGDEV_NO_TMUX:-0}" != "1" ] \
+   && [ -t 1 ] \
+   && command -v tmux >/dev/null 2>&1; then
+  exec tmux new-session -A -s langdev
+fi
+
 exec /bin/bash --login

@@ -1,17 +1,27 @@
 # syntax=docker/dockerfile:1.9
-# langdev Containerfile template — OCI, builds with Docker AND Podman.
+# rustdev Containerfile — OCI, builds with Docker AND Podman.
 # SPDX-License-Identifier: MIT
 #
-# Multi-stage, hardened, ultra-small base for <language>dev images.
-# A language repo fills in the `toolchain` stage and copies its LSP
-# binaries + nvim/plugins/lang.lua. Everything below the "COMMON BASE"
-# banner is identical across the suite (kept in sync via `make sync-common`).
+# Multi-stage, hardened, ultra-small Rust dev image built on the langdev
+# foundation. The developer environment (shell, editor, tmux) is the USER'S
+# OWN chezmoi-managed dotfiles, cloned + applied at build time (latest by
+# default; pin with DOTFILES_REF). langdev provides only the hardened base +
+# the Rust toolchain + a single nvim/plugins.local/lang.lua LSP drop-in.
 #
-# Pin the base by DIGEST. Update via `make bump-base` (looks up the
-# current digest for the tag and rewrites the two lines below).
+# Pin the base by DIGEST. Update via `make bump-base` (looks up the current
+# digest for the tag and rewrites the two lines below).
 ARG ALPINE_VERSION=3.22
 # renovate: datasource=docker depName=alpine
 ARG ALPINE_DIGEST=sha256:14358309a308569c32bdc37e2e0e9694be33a9d99e68afb0f5ff33cc1f695dce
+
+ARG USERNAME=dev
+ARG USER_UID=1000
+ARG USER_GID=1000
+
+# Dotfiles source — "always the latest" by default; pin a tag/commit for
+# reproducible builds.
+ARG DOTFILES_REPO=https://github.com/sebastienrousseau/dotfiles.git
+ARG DOTFILES_REF=main
 
 ###############################################################################
 # Stage: toolchain  (LANGUAGE-SPECIFIC — Rust via rustup, minimal profile)
@@ -75,87 +85,79 @@ RUN set -eux; \
     rm -rf "${CARGO_HOME}/registry" "${CARGO_HOME}/git"
 
 ###############################################################################
-# Stage: nvim-build  (COMMON — bakes the editor + plugins into the image)
-#   Runs Neovim headless to install the exact plugin set from lazy-lock.json,
-#   so the runtime image needs NO network on first launch.
+# Stage: env-build  (COMMON — apply the user's dotfiles + bake nvim plugins)
 ###############################################################################
-FROM alpine:${ALPINE_VERSION}@${ALPINE_DIGEST} AS nvim-build
-ARG USERNAME=dev
-ARG USER_UID=1000
-ARG USER_GID=1000
+FROM alpine:${ALPINE_VERSION}@${ALPINE_DIGEST} AS env-build
+ARG USERNAME USER_UID USER_GID DOTFILES_REPO DOTFILES_REF
+# Tools needed to clone+apply dotfiles and compile/install nvim plugins.
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
-      bash ca-certificates curl git \
-      neovim ripgrep fd \
+      bash ca-certificates chezmoi curl git \
+      neovim ripgrep fd fzf bat \
       build-base cmake
-# LazyVim starter pinned to a commit (reproducible); overridable at build.
-ARG LAZYVIM_STARTER_REF=c31e5cc9f77b16d20a693c30f28fdf907f1caf95
-ENV XDG_CONFIG_HOME=/root/.config \
-    XDG_DATA_HOME=/root/.local/share \
-    XDG_STATE_HOME=/root/.local/state \
-    XDG_CACHE_HOME=/root/.cache
-RUN git clone --filter=blob:none https://github.com/LazyVim/starter /root/.config/nvim \
- && git -C /root/.config/nvim checkout "${LAZYVIM_STARTER_REF}" \
- && rm -rf /root/.config/nvim/.git
-# Common + language plugin specs (language repo adds lang.lua before build).
-COPY common/nvim/plugins/ /root/.config/nvim/lua/plugins/
-COPY nvim/plugins/ /root/.config/nvim/lua/plugins/
-# Reproducible plugin set: restore from committed lockfile, then sync.
-COPY nvim/lazy-lock.json /root/.config/nvim/lazy-lock.json
+RUN addgroup -g "${USER_GID}" "${USERNAME}" \
+ && adduser -D -u "${USER_UID}" -G "${USERNAME}" -s /bin/bash "${USERNAME}"
+COPY --chown=${USER_UID}:${USER_GID} common/bootstrap-dotfiles.sh /usr/local/bin/langdev-bootstrap-dotfiles
+RUN chmod 0755 /usr/local/bin/langdev-bootstrap-dotfiles
+USER ${USERNAME}
+ENV HOME=/home/${USERNAME}
+# 1) Clone + chezmoi-apply the user's dotfiles (brings bashrc, tmux, nvim…).
+RUN DOTFILES_REPO="${DOTFILES_REPO}" DOTFILES_REF="${DOTFILES_REF}" \
+      langdev-bootstrap-dotfiles
+# 2) Drop the Rust LSP spec into the dotfiles' nvim (auto-imported via the
+#    config's `plugins.local`), then bake the full plugin set headless so the
+#    runtime needs no network on first launch.
+COPY --chown=${USER_UID}:${USER_GID} nvim/plugins.local/ /home/${USERNAME}/.config/nvim/lua/plugins.local/
 RUN nvim --headless "+Lazy! restore" +qa 2>&1 | tail -n 5 || true \
- && nvim --headless "+TSUpdateSync" +qa 2>&1 | tail -n 5 || true
+ && nvim --headless "+Lazy! sync"    +qa 2>&1 | tail -n 5 || true \
+ && nvim --headless "+TSUpdateSync"  +qa 2>&1 | tail -n 5 || true
 
 ###############################################################################
 #                              COMMON BASE
 ###############################################################################
 FROM alpine:${ALPINE_VERSION}@${ALPINE_DIGEST} AS base
+ARG USERNAME USER_UID USER_GID
 
-ARG USERNAME=dev
-ARG USER_UID=1000
-ARG USER_GID=1000
-
-LABEL org.opencontainers.image.title="langdev" \
+LABEL org.opencontainers.image.title="rustdev" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.vendor="Sebastien Rousseau"
 
-# Minimal, pinned runtime. `tini` is the init (compose sets init:true, but
-# shipping it keeps `docker run` correct too). Versions are pinned by the
-# digest-locked Alpine repository for this release.
+# Runtime deps: editor, multiplexer (tmux — available by default), and the
+# CLI tools the dotfiles expect. `tini` is PID 1 (compose sets init:true).
 # hadolint ignore=DL3018
 RUN apk add --no-cache \
       bash \
+      bat \
       ca-certificates \
+      chezmoi \
       curl \
+      fd \
+      fzf \
       git \
       less \
       neovim \
       ripgrep \
-      fd \
       tini \
+      tmux \
       tzdata \
+      zoxide \
  && update-ca-certificates
 
-# Non-root user with a real home.
 RUN addgroup -g "${USER_GID}" "${USERNAME}" \
  && adduser -D -u "${USER_UID}" -G "${USERNAME}" -s /bin/bash "${USERNAME}"
 
-# Portable dotfiles.
-COPY --chown=${USER_UID}:${USER_GID} common/dotfiles/bashrc        /home/${USERNAME}/.bashrc
-COPY --chown=${USER_UID}:${USER_GID} common/dotfiles/bash_profile  /home/${USERNAME}/.bash_profile
-COPY --chown=${USER_UID}:${USER_GID} common/dotfiles/bash_aliases  /home/${USERNAME}/.bash_aliases
+# Bring in the fully-populated home from env-build: the applied dotfiles
+# (~/.bashrc, ~/.config/tmux, ~/.config/nvim, ~/.config/shell/*, …) plus the
+# baked nvim plugin set. One COPY captures everything chezmoi wrote.
+COPY --from=env-build --chown=${USER_UID}:${USER_GID} /home/${USERNAME} /home/${USERNAME}
 
-# Editor + baked-in plugins from the nvim-build stage.
-COPY --from=nvim-build --chown=${USER_UID}:${USER_GID} /root/.config/nvim /home/${USERNAME}/.config/nvim
-COPY --from=nvim-build --chown=${USER_UID}:${USER_GID} /root/.local/share/nvim /home/${USERNAME}/.local/share/nvim
-
-# Entrypoint.
+# Entrypoint (tmux-loading, strict-mode).
 COPY common/entrypoint.sh /usr/local/bin/langdev-entrypoint
 RUN chmod 0755 /usr/local/bin/langdev-entrypoint \
  && mkdir -p /usr/local/lib/langdev
 
 # --- Hardening ---------------------------------------------------------------
-# Sticky bit preserved (1777, NOT 777). Remove any setuid/setgid bits so no
-# privilege escalation vector survives. No `chattr` theatre (no-op in a
-# container). No account-lock theatre — we simply run as an unprivileged user.
+# Sticky bit preserved (1777, NOT 777). Strip setuid/setgid bits everywhere.
 RUN chmod 1777 /tmp \
  && find / -xdev -type f \( -perm -4000 -o -perm -2000 \) -exec chmod -s {} + 2>/dev/null || true
 
@@ -179,15 +181,22 @@ ENTRYPOINT ["/usr/local/bin/langdev-entrypoint"]
 ###############################################################################
 # Stage: final  (Rust runtime — tiny: toolchain artifacts only, no build tools)
 #   Copies the relocatable rustup/cargo prefix from the toolchain stage and
-#   drops the language shell fragment. No wget/shadow/build-base here.
+#   installs the language env fragment to /etc/profile.d. No build tools here.
 ###############################################################################
 FROM base AS final
 
 # Relocatable Rust toolchain built + checksum-verified in the toolchain stage.
 COPY --from=toolchain --chown=1000:1000 /opt/langdev/toolchain /opt/langdev/toolchain
 
-# Language shell fragment: sets CARGO_HOME/RUSTUP_HOME/PATH + a few aliases.
-COPY --chown=1000:1000 dotfiles.d/rust.sh /home/dev/.bashrc.d/rust.sh
+# Language PATH/env for login shells, sourced via /etc/profile → profile.d.
+# Root-owned, 0644. Kept OUT of the user's chezmoi dotfiles so those stay
+# pristine and langdev-agnostic; the script guards against duplicate PATH
+# entries so it's safe to re-source.
+USER root
+COPY dotfiles.d/rust.sh /etc/profile.d/rust.sh
+RUN chown root:root /etc/profile.d/rust.sh \
+ && chmod 0644 /etc/profile.d/rust.sh
+USER dev
 
 # rust-analyzer, cargo, clippy, cargo-audit, cargo-watch are all on PATH.
 ENV RUSTUP_HOME=/opt/langdev/toolchain/rustup \

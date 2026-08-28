@@ -1,10 +1,12 @@
-# ~/.bashrc.d/rust.sh — Rust language fragment (rustdev)
+# /etc/profile.d/rust.sh — Rust language fragment (rustdev)
 # SPDX-License-Identifier: MIT
 #
-# Sourced by the common ~/.bashrc for interactive shells. Sets the Rust
-# environment for the pre-installed, relocatable toolchain and adds a few
-# aliases ONLY for tools that are actually installed in the image
-# (cargo build/test, clippy, cargo-audit). No host PATH is propagated.
+# Installed to /etc/profile.d (root-owned, 0644) and sourced by every login
+# shell via /etc/profile. Kept OUT of the user's chezmoi dotfiles so those stay
+# pristine and langdev-agnostic. Sets the Rust environment for the
+# pre-installed, relocatable toolchain and adds a few aliases ONLY for tools
+# actually installed in the image (cargo build/test, clippy, cargo-audit).
+# No host PATH is propagated; the PATH guard below is safe to re-source.
 
 # Relocatable toolchain prefix baked in at build time.
 export RUSTUP_HOME=/opt/langdev/toolchain/rustup

@@ -8,9 +8,17 @@ a complete, batteries-included Rust toolchain inside a container you can
 Podman (Linux, macOS, Windows/WSL2).
 
 It ships a pinned rustup toolchain (rustc, cargo, clippy, rust-analyzer,
-rust-src) plus `cargo-audit` and `cargo-watch`, and a pre-configured
-Neovim (LazyVim + rustaceanvim) with the LSP wired to the build-time
+rust-src) plus `cargo-audit` and `cargo-watch`. The developer environment
+— shell, aliases, tmux, and Neovim — is **your own
+[chezmoi-managed dotfiles](https://github.com/sebastienrousseau/dotfiles)**,
+cloned and applied at build time (latest by default; pin with the
+`DOTFILES_REF` build arg). rustdev adds just one thing to that editor: a
+`nvim/plugins.local/lang.lua` spec that wires the LSP to the build-time
 `rust-analyzer`. No network is needed on first launch.
+
+**tmux is loaded by default** — an interactive shell attaches to (or
+creates) a persistent `langdev` tmux session so panes survive detach. Opt
+out with `LANGDEV_NO_TMUX=1`.
 
 ## Quick start
 
@@ -33,16 +41,17 @@ ephemeral (read-only rootfs + tmpfs), so a container is truly disposable.
 | `cargo-audit` | `0.22.2` | `cargo install --locked --version` |
 | `cargo-watch` | `8.5.3` | `cargo install --locked --version` |
 | rust-analyzer / clippy / rust-src | (with `1.98.0`) | rustup components |
-| Neovim plugins | — | `nvim/lazy-lock.json` (regenerate with `make lock`/CI) |
+| Dotfiles (shell/tmux/nvim) | latest | `DOTFILES_REF` build arg (pin a tag/commit) |
+| Neovim plugins | — | your dotfiles' `nvim/lazy-lock.json` (baked headless at build) |
 
 The toolchain is built in a separate `toolchain` stage and only its
 relocatable prefix (`/opt/langdev/toolchain`) is copied into the final
 image — build tools (`build-base`, `curl`) never reach the runtime layer.
 
-> **Neovim lockfile bootstrap:** `nvim/lazy-lock.json` is committed as
-> `{}` to bootstrap the build. The first CI image build (or a local
-> `nvim --headless +"Lazy! sync"`) regenerates the fully pinned lockfile;
-> commit the result to freeze the exact plugin set.
+> **Reproducible dotfiles:** by default the build clones the latest
+> dotfiles (`DOTFILES_REF=main`). For a byte-reproducible image, pass a
+> tag or commit: `--build-arg DOTFILES_REF=<sha>`. The exact commit
+> bundled is recorded in the image at `~/.dotfiles.commit`.
 
 ## Make targets
 
@@ -63,33 +72,13 @@ mount flags for Podman) so the same commands work with either engine.
 
 ## Aliases
 
-Provided by `common/dotfiles/bash_aliases` (language-agnostic) and
-`dotfiles.d/rust.sh` (Rust-specific), both sourced by the interactive
-shell.
+General shell aliases come from **your own dotfiles** (whatever your
+`bashrc`/`aliases` define). The Rust-specific aliases below are added by
+`dotfiles.d/rust.sh`, installed to `/etc/profile.d/rust.sh` (root-owned,
+`0644`) so it is sourced by every login shell without touching your
+pristine dotfiles.
 
-### General
-
-| Alias | Expands to |
-|---|---|
-| `..` / `...` / `....` | `cd ..` / `cd ../..` / `cd ../../..` |
-| `ll` | `ls -alhF` |
-| `la` | `ls -A` |
-| `l` | `ls -CF` |
-| `lt` | `ls -alhFt` (newest first) |
-| `rm` | `rm -I --preserve-root` |
-| `cp` / `mv` | `cp -i` / `mv -i` |
-| `mkdir` | `mkdir -p` |
-| `v` / `vi` | `nvim` |
-| `gs` | `git status -sb` |
-| `gd` | `git diff` |
-| `gl` | `git log --oneline --graph --decorate -20` |
-| `ga` / `gc` / `gp` | `git add` / `git commit` / `git push` |
-| `gco` / `gb` | `git checkout` / `git branch` |
-| `h` | `history` |
-| `path` | print `$PATH`, one entry per line |
-| `reload` | `exec "$SHELL" -l` |
-
-### Rust (`dotfiles.d/rust.sh`)
+### Rust (`/etc/profile.d/rust.sh`)
 
 | Alias | Expands to |
 |---|---|
@@ -101,18 +90,26 @@ shell.
 | `cw` | `cargo watch -x check` |
 | `caudit` | `cargo audit` |
 
-`dotfiles.d/rust.sh` also exports `CARGO_HOME`, `RUSTUP_HOME` and prepends
-`$CARGO_HOME/bin` to `PATH`. It does **not** propagate any host `PATH`.
+`/etc/profile.d/rust.sh` also exports `CARGO_HOME`, `RUSTUP_HOME` and
+prepends `$CARGO_HOME/bin` to `PATH` (guarding against duplicate entries so
+it's safe to re-source). It does **not** propagate any host `PATH`.
 
 ## Neovim
 
-- LazyVim starter, pinned by commit and baked in at build time.
+The Neovim config is **your own dotfiles' nvim** — applied by chezmoi at
+build time and authoritative. rustdev makes exactly one addition:
+
+- **LSP wiring via `plugins.local`.** `nvim/plugins.local/lang.lua` is
+  dropped into your config at `~/.config/nvim/lua/plugins.local/` (the
+  dotfiles' auto-imported local-override convention). It's an ordinary
+  lazy.nvim spec, so it composes with the rest of your setup untouched.
 - Rust is configured via `mrcjkb/rustaceanvim` (the maintained successor
-  to the archived `rust-tools.nvim`) in `nvim/plugins/lang.lua`, pointed
-  at the pre-installed `rust-analyzer` on `PATH`.
-- Treesitter grammars `rust` and `ron` are added on top of the common set.
-- **Mason is intentionally disabled** — the LSP is installed at build time,
-  so first launch needs no network and the image stays reproducible.
+  to the archived `rust-tools.nvim`), pointed at the pre-installed
+  `rust-analyzer` on `PATH` — no Mason, no network on first launch.
+- Treesitter grammars `rust` and `ron` are added on top of your set.
+- The full plugin set (yours + this spec) is baked headless at build time
+  from your dotfiles' `nvim/lazy-lock.json`, so the container is
+  reproducible and offline-ready on first launch.
 
 ## Security posture
 
