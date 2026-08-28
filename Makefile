@@ -78,14 +78,6 @@ scan: build ## Vulnerability-scan the built image (needs trivy)
 sbom: build ## Generate a CycloneDX SBOM (needs syft)
 	@command -v syft >/dev/null && syft $(REF) -o cyclonedx-json > sbom.cdx.json && echo "wrote sbom.cdx.json" || echo "syft not installed — skipping"
 
-.PHONY: lock
-lock: build ## Regenerate nvim/lazy-lock.json from the built image
-	$(ENGINE) run --rm --entrypoint nvim $(REF) \
-	  --headless "+Lazy! sync" "+qa" >/dev/null 2>&1 || true
-	$(ENGINE) run --rm --entrypoint cat $(REF) \
-	  /home/dev/.config/nvim/lazy-lock.json > nvim/lazy-lock.json
-	@echo "wrote nvim/lazy-lock.json"
-
 .PHONY: sync-common
 sync-common: ## Refresh common/ from the langdev source (LANGDEV=path-or-url)
 	@./bin/langdev-sync $(if $(LANGDEV),--source "$(LANGDEV)",)
