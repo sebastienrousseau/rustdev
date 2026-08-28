@@ -1,0 +1,57 @@
+# langdev compose — fully hardened, disposable dev service.
+# SPDX-License-Identifier: MIT
+# Works with `docker compose` and `podman compose`/`podman-compose`.
+#
+# Security posture: non-root, all caps dropped, no new privileges,
+# read-only root filesystem with tmpfs for the few writable paths.
+# The ONLY bind mount is your project directory at /work.
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        USERNAME: dev
+        USER_UID: "1000"
+        USER_GID: "1000"
+    image: ${IMAGE:-langdev}:${TAG:-local}
+    # Disposable by design: don't auto-restart.
+    restart: "no"
+    init: true                       # tini as PID 1 -> clean signal handling
+    user: "1000:1000"
+    working_dir: /work
+
+    # --- Hardening -----------------------------------------------------------
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Writable paths on the read-only rootfs (ephemeral). Note: nvim plugins
+    # are baked read-only into ~/.local/share/nvim and deliberately NOT tmpfs'd.
+    tmpfs:
+      - /tmp:mode=1777,nosuid,nodev
+      - /home/dev/.cache:mode=0700,uid=1000,gid=1000,nosuid,nodev
+      - /home/dev/.local/state:mode=0700,uid=1000,gid=1000,nosuid,nodev
+
+    # --- Resource limits (also enforced via `deploy` for swarm/k8s) ----------
+    pids_limit: 512
+    mem_limit: 2g
+    memswap_limit: 2g
+    cpus: 2.0
+
+    # --- The one mount: your code --------------------------------------------
+    volumes:
+      - type: bind
+        source: .
+        target: /work
+
+    # Secrets/config are runtime-only; never baked in. Copy env.example -> .env
+    # (which is gitignored and dockerignored) and it is loaded here.
+    env_file:
+      - path: .env
+        required: false
+
+    # Interactive by default (override CMD for one-shot use).
+    stdin_open: true
+    tty: true

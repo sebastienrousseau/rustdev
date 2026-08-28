@@ -1,86 +1,24 @@
-# Version control
+# langdev .dockerignore — keep the build context tiny and secret-free.
+# Rename to `.dockerignore` in each repo.
+
+# Never send secrets or VCS metadata into the build context.
+.env
+*.env
+!env.example
 .git
 .gitignore
-.gitattributes
-.github/
+.corral-state.json
 
-# Rust specific
-target/
-**/*.rs.bk
-Cargo.lock
-debug/
-**/*.pdb
-
-# Environment files (except the one we need)
-.env.*
-!.env
-
-# Editor specific
-.vscode/
-.idea/
-*.swp
-*.swo
-.vim/
-*.sublime-*
-
-# OS specific
-.DS_Store
-Thumbs.db
+# Local runtime + scan artifacts.
+work/
+sbom.cdx.json
 *.log
 
-# Documentation
-docs/
-*.md
-LICENSE*
-README*
-
-# Testing
-tests/
-coverage/
-.coverage
-*.test
-
-# Dependencies
-node_modules/
-
-# Build artifacts
-dist/
-build/
-*.o
-*.so
-*.dylib
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.bak
-*.backup
-
-# Docker specific
-.docker/
-docker-compose.override.yml
-
-# CI/CD
-.travis.yml
-.gitlab-ci.yml
-.circleci/
-.jenkins/
-
-# Miscellaneous
-*.pdf
-*.zip
-*.tar.gz
-*.rar
-
-# Keep required build context files
-!.bash_aliases
-!.bash_profile
-!.bashrc
-!.env
-!.gitignore
-!docker-compose.yml
-!plugins/disabled.lua
-!plugins/ui.lua
-!plugins/coding.lua
-!plugins/toggleterm.lua
+# Docs/CI are not needed to build the image.
+README.md
+LICENSE
+.github/
+Makefile
+compose.yaml
+docker-compose.yml
+podman-compose.yml

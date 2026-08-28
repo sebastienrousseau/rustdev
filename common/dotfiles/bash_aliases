@@ -1,0 +1,41 @@
+# ~/.bash_aliases — language-agnostic aliases only (langdev common)
+# SPDX-License-Identifier: MIT
+#
+# Language-specific aliases belong in the per-language ~/.bashrc.d/<lang>.sh
+# fragment, NOT here. Everything below is guaranteed present in the base.
+
+# --- Navigation --------------------------------------------------------------
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# --- Listing (coreutils) -----------------------------------------------------
+alias ll='ls -alhF'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -alhFt'          # newest first
+
+# --- Safety: interactive by default for destructive ops ----------------------
+alias rm='rm -I --preserve-root'
+alias cp='cp -i'
+alias mv='mv -i'
+alias mkdir='mkdir -p'
+
+# --- Editor ------------------------------------------------------------------
+alias v='nvim'
+alias vi='nvim'
+
+# --- Git (only universally-safe shortcuts) -----------------------------------
+alias gs='git status -sb'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate -20'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gco='git checkout'
+alias gb='git branch'
+
+# --- Misc --------------------------------------------------------------------
+alias h='history'
+alias path='printf "%s\n" "${PATH//:/$'"'"'\n'"'"'}"'
+alias reload='exec "$SHELL" -l'
