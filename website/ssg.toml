@@ -1,7 +1,7 @@
 site_name = "rustdev"
 site_title = "rustdev — Portable, Hardened Rust 1.85+ AI Developer Container"
 site_description = "Fast, hermetic Rust container preloaded with rustup, rust-analyzer, clippy, cargo-audit, sccache, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server."
-base_url = "https://sebastienrousseau.github.io/rustdev/"
+base_url = "https://sebastienrousseau.com/rustdev/"
 language = "en-GB"
 
 content_dir = "content"
