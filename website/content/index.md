@@ -7,6 +7,9 @@ lead: "Fast, hermetic Rust container preloaded with rustup, rust-analyzer, clipp
 permalink: "/"
 language: "en-GB"
 date: "2026-08-29"
+description: "Blazing-fast Rust container preloaded with rustup, rust-analyzer, clippy, cargo-audit, sccache, 4-pane TMUX IDE, and stdio MCP server."
+eyebrow: "Rust Stack"
+author: "Sebastien Rousseau"
 ---
 
 <section id="overview" class="section">
@@ -59,10 +62,10 @@ make mosh</code></pre>
       <table>
         <thead>
           <tr>
-            <th>Container</th>
-            <th>Language Stack</th>
-            <th>Built-in Tooling</th>
-            <th>Version</th>
+            <th scope="col">Container</th>
+            <th scope="col">Language Stack</th>
+            <th scope="col">Built-in Tooling</th>
+            <th scope="col">Version</th>
           </tr>
         </thead>
         <tbody>
