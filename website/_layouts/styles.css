@@ -662,3 +662,13 @@ td {
   color: var(--primary);
   text-decoration: underline;
 }
+
+.suite-link {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
+}
+.suite-link:hover {
+  color: var(--primary-hover);
+}
