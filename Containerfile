@@ -135,10 +135,12 @@ RUN apk add --no-cache \
       fzf \
       git \
       less \
+      mosh-server \
       neovim \
       ripgrep \
       tini \
       tmux \
+      ttyd \
       tzdata \
       zoxide \
  && update-ca-certificates
