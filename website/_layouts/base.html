@@ -423,127 +423,140 @@ body {
   margin-bottom: 3.5rem;
 }
 
-.terminal-preview-card {
-  max-width: 1020px;
+/* --- Realistic Animated Terminal (inspired by iso20022-mcp) --- */
+.mcp-term {
   margin: 0 auto;
-  background: #0d0f18;
+  max-width: 960px;
+  background: #0d1117;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-lg);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
   overflow: hidden;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65);
   text-align: left;
 }
 
-.terminal-header {
+.mcp-term-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 1.25rem;
-  background: #161924;
+  gap: 8px;
+  background: #161b22;
   border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
 }
 
-.window-dots {
-  display: flex;
-  gap: 0.4rem;
-}
-
-.dot {
+.mcp-term-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
+  flex: none;
 }
-.dot-red { background: #ef4444; }
-.dot-yellow { background: #eab308; }
-.dot-green { background: #22c55e; }
+.mcp-term-dot.dot-red { background: #ef4444; }
+.mcp-term-dot.dot-yellow { background: #eab308; }
+.mcp-term-dot.dot-green { background: #22c55e; }
 
-.terminal-session {
-  font-size: 0.875rem;
-  color: #f3f4f6;
+.mcp-term-title {
   font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  color: #c9d1d9;
+  margin-left: 8px;
   font-weight: 600;
 }
 
-.badge-status {
-  font-size: 0.8125rem;
-  color: #34d399;
+.mcp-term-body {
+  margin: 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  overflow-x: auto;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.mcp-term-body code {
+  display: block;
   font-family: var(--font-mono);
+  font-size: clamp(0.85rem, 1.15vw, 0.95rem);
+  line-height: 1.85;
+  color: #f0f6fc;
+  background: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+.mcp-tl {
+  display: block;
+  min-width: 0;
+}
+
+.mcp-tl-ps {
+  color: #7ee787;
   font-weight: 700;
 }
 
-.terminal-grid {
-  display: grid;
-  grid-template-columns: 24% 52% 24%;
-  grid-template-rows: 250px 150px;
-  gap: 1px;
-  background: var(--border);
+.mcp-tl-ask .mcp-tl-ps {
+  color: #79c0ff;
+  font-weight: 700;
 }
 
-.pane {
-  background: #090a0f;
-  padding: 1rem;
+.mcp-tl-out {
+  color: #9ea7b3;
+}
+
+.mcp-tl-ok {
+  color: #7ee787;
+  font-weight: 700;
+}
+
+.mcp-tl-caret::after {
+  content: "\258B";
+  color: #79c0ff;
+  animation: mcpblink 1.1s step-end infinite;
+}
+
+@keyframes mcptype {
+  from { width: 0; }
+  to { width: var(--tw); }
+}
+
+@keyframes mcpfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes mcpblink {
+  50% { opacity: 0; }
+}
+
+.mcp-tl-typed {
   overflow: hidden;
+  white-space: nowrap;
+  width: var(--tw);
+  animation: mcptype var(--td) steps(var(--ts), end) both;
+  animation-delay: var(--ta);
 }
 
-.pane-left {
-  grid-row: 1 / 3;
-  grid-column: 1;
+.mcp-tl-fade {
+  animation: mcpfade 0.3s ease both;
+  animation-delay: var(--ta);
 }
 
-.pane-center-top {
-  grid-row: 1;
-  grid-column: 2;
-}
+.mcp-tl-t1 { --tw: 10ch; --ts: 10; --td: 0.4s; --ta: 0.2s; }
+.mcp-tl-f2 { --ta: 0.8s; }
+.mcp-tl-t3 { --tw: 72ch; --ts: 72; --td: 1.8s; --ta: 1.4s; }
+.mcp-tl-f4 { --ta: 3.4s; }
+.mcp-tl-t5 { --tw: 58ch; --ts: 58; --td: 1.5s; --ta: 4.0s; }
+.mcp-tl-f6 { --ta: 5.7s; }
+.mcp-tl-f7 { --ta: 6.3s; }
 
-.pane-center-bottom {
-  grid-row: 2;
-  grid-column: 2;
-}
-
-.pane-right {
-  grid-row: 1 / 3;
-  grid-column: 3;
-}
-
-.pane-header {
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #9ca3af;
-  margin-bottom: 0.5rem;
-  border-bottom: 1px dashed var(--border);
-  padding-bottom: 0.35rem;
-  text-transform: uppercase;
-}
-
-.pane-body {
-  font-size: 0.875rem;
-  color: #f9fafb;
-  line-height: 1.6;
-  font-family: var(--font-mono);
-}
-
-.tree-line { padding: 0.15rem 0; }
-.tree-line.indent { padding-left: 1rem; color: #d1d5db; }
-
-.code-kw { color: #f472b6; font-weight: 700; }
-.code-fn { color: #93c5fd; }
-.code-type { color: #6ee7b7; }
-.code-comment { color: #9ca3af; font-style: italic; }
-
-.agent-msg { color: #c084fc; margin-bottom: 0.5rem; }
-.agent-name { font-weight: 700; }
-.agent-status { color: #34d399; font-weight: 700; }
-.terminal-cli { color: #93c5fd; }
-
-@media (max-width: 900px) {
-  .terminal-grid {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
+@media (prefers-reduced-motion: reduce) {
+  .mcp-tl-typed,
+  .mcp-tl-fade {
+    animation: none;
+    width: auto;
+    opacity: 1;
   }
-  .pane-left, .pane-center-top, .pane-center-bottom, .pane-right {
-    grid-row: auto;
-    grid-column: auto;
+  .mcp-tl-caret::after {
+    animation: none;
   }
 }
 

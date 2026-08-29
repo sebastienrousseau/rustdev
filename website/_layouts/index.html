@@ -13,62 +13,23 @@
       <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/{{name}}" target="_blank" rel="noopener">Star on GitHub</a>
     </div>
 
-    <!-- Interactive Terminal IDE Preview Mockup -->
-    <div class="terminal-preview-card">
-      <div class="terminal-header">
-        <div class="window-dots">
-          <span class="dot dot-red"></span>
-          <span class="dot dot-yellow"></span>
-          <span class="dot dot-green"></span>
-        </div>
-        <div class="terminal-title-bar">
-          <span class="terminal-session">tmux: {{name}} [4-pane grid layout]</span>
-        </div>
-        <div class="terminal-actions">
-          <span class="badge-status">● Live &lt; 500ms</span>
-        </div>
-      </div>
-      <div class="terminal-grid">
-        <div class="pane pane-left">
-          <div class="pane-header">EXPLORER (20% W)</div>
-          <div class="pane-body font-mono">
-            <div class="tree-line">▾ src/</div>
-            <div class="tree-line indent">▪ main</div>
-            <div class="tree-line indent">▪ config</div>
-            <div class="tree-line">▾ common/</div>
-            <div class="tree-line indent">▪ mcp-server.sh</div>
-            <div class="tree-line indent">▪ tmux-ide.sh</div>
-            <div class="tree-line indent">▪ muxtree.sh</div>
-          </div>
-        </div>
-        <div class="pane pane-center-top">
-          <div class="pane-header">NVIM + LSP (56% W, 70% H)</div>
-          <div class="pane-body font-mono code-view">
-            <span class="code-comment">// 2026 AI Agent Stdio Protocol Server</span><br/>
-            <span class="code-kw">func</span> <span class="code-fn">HandleToolCall</span>(tool <span class="code-type">string</span>, args <span class="code-type">JSON</span>) <span class="code-type">Result</span> {<br/>
-            &nbsp;&nbsp;<span class="code-kw">return</span> mcp.<span class="code-fn">Dispatch</span>(tool, args)<br/>
-            }
-          </div>
-        </div>
-        <div class="pane pane-right">
-          <div class="pane-header">AI AGENT PANE (24% W)</div>
-          <div class="pane-body font-mono ai-chat">
-            <div class="agent-msg"><span class="agent-name">● Claude / Agy</span>: Analyzed repository worktree. Ready to execute Bats regression tests.</div>
-            <div class="agent-status">&gt; Running test/run.sh [100% pass]</div>
-          </div>
-        </div>
-        <div class="pane pane-center-bottom">
-          <div class="pane-header">TERMINAL + DIAGNOSTICS (56% W, 30% H)</div>
-          <div class="pane-body font-mono terminal-cli">
-            dev@{{name}}:/work$ make doctor<br/>
-            [OK] Container engine: podman / docker<br/>
-            [OK] Read-only rootfs: immutable<br/>
-            [OK] Capability drop: ALL (unprivileged)<br/>
-            [OK] Health check: 100% green
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Realistic Animated Terminal IDE & MCP Session -->
+    <figure class="mcp-term">
+      <figcaption class="mcp-term-bar">
+        <span class="mcp-term-dot dot-red" aria-hidden="true"></span>
+        <span class="mcp-term-dot dot-yellow" aria-hidden="true"></span>
+        <span class="mcp-term-dot dot-green" aria-hidden="true"></span>
+        <span class="mcp-term-title">Terminal · {{name}} stdio &amp; TMUX IDE</span>
+      </figcaption>
+      <pre class="mcp-term-body"><code><span class="mcp-tl mcp-tl-cmd mcp-tl-typed mcp-tl-t1"><span class="mcp-tl-ps" aria-hidden="true">$ </span>make up</span>
+<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f2">[OK] rustdev ready &lt; 500ms · rustc 1.85, rust-analyzer, sccache active</span>
+<span class="mcp-tl mcp-tl-cmd mcp-tl-typed mcp-tl-t3"><span class="mcp-tl-ps" aria-hidden="true">$ </span>claude mcp add {{name}} -- docker exec -i {{name}} /usr/local/bin/mcp-server</span>
+<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f4">{{name}}-mcp · connected (stdio JSON-RPC 2.0)</span>
+<span class="mcp-tl mcp-tl-ask mcp-tl-typed mcp-tl-t5"><span class="mcp-tl-ps" aria-hidden="true">&gt; </span>Run cargo clippy --all-targets and cargo audit.</span>
+<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f6">dispatched: cargo clippy -- -D warnings &amp;&amp; cargo audit</span>
+<span class="mcp-tl mcp-tl-ok mcp-tl-fade mcp-tl-f7">✓ 0 warnings · 0 vulnerabilities · 100% hermetic build</span>
+<span class="mcp-tl mcp-tl-caret" aria-hidden="true"></span></code></pre>
+    </figure>
   </div>
 </section>
 
