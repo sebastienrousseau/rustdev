@@ -44,10 +44,9 @@ updates:
           - "anchore/*"
           - "hadolint/*"
 
-  # ── Container base images (Containerfile templates) ─────────────
+  # ── Container base images (Containerfile) ───────────────────────
   - package-ecosystem: docker
-    directories:
-      - "/templates"
+    directory: /
     schedule:
       interval: weekly
       day: monday
