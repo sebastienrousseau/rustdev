@@ -8,6 +8,35 @@
 # execs either the requested command or an interactive login shell.
 set -euo pipefail
 
+# --- Test seams (inert in production) ---------------------------------------
+# These exist ONLY so the unit tests (test/*.bats) can exercise every branch
+# hermetically, with no container and no root. All default to the production
+# values, so an unset LANGDEV_TEST leaves runtime behaviour byte-identical.
+#
+#   LANGDEV_WORKDIR       project dir to cd into            (default /work)
+#   LANGDEV_RUNTIME_HOOK  optional per-language hook script (default the
+#                         /usr/local/lib path the Containerfile installs)
+#   LANGDEV_TEST          when set, `exec` is shadowed by a function that
+#                         records its argv and exits instead of replacing the
+#                         process, and the stdout-TTY probe is forced via
+#                         LANGDEV_FAKE_TTY. See test/README.md.
+: "${LANGDEV_WORKDIR:=/work}"
+: "${LANGDEV_RUNTIME_HOOK:=/usr/local/lib/langdev/runtime-hook.sh}"
+
+_is_tty() {
+  if [ -n "${LANGDEV_TEST:-}" ]; then
+    [ "${LANGDEV_FAKE_TTY:-0}" = "1" ]
+  else
+    [ -t 1 ]
+  fi
+}
+
+if [ -n "${LANGDEV_TEST:-}" ]; then
+  # Faithful model of `exec`: it terminates the script (the real exec
+  # replaces the process), but records argv so a test can assert on it.
+  exec() { printf 'LANGDEV_EXEC %s\n' "$*"; exit "${LANGDEV_EXEC_RC:-0}"; }
+fi
+
 # XDG dirs live under $HOME, which is backed by tmpfs on a read-only
 # rootfs (see compose). Create them if missing so editors/tools behave.
 : "${XDG_CACHE_HOME:=$HOME/.cache}"
@@ -16,15 +45,15 @@ set -euo pipefail
 mkdir -p "$XDG_CACHE_HOME" "$XDG_STATE_HOME" "$XDG_DATA_HOME" || true
 
 # Project directory bind-mounted by the user; default working dir.
-if [ -d /work ]; then
-  cd /work || true
+if [ -d "$LANGDEV_WORKDIR" ]; then
+  cd "$LANGDEV_WORKDIR" || true
 fi
 
 # Optional per-language runtime hook (e.g. start a server). Must be
 # idempotent and fast; provided by the language image if needed.
-if [ -x /usr/local/lib/langdev/runtime-hook.sh ]; then
+if [ -x "$LANGDEV_RUNTIME_HOOK" ]; then
   # shellcheck source=/dev/null
-  . /usr/local/lib/langdev/runtime-hook.sh
+  . "$LANGDEV_RUNTIME_HOOK"
 fi
 
 if [ "$#" -gt 0 ]; then
@@ -38,7 +67,7 @@ fi
 # inside tmux.
 if [ -z "${TMUX:-}" ] \
    && [ "${LANGDEV_NO_TMUX:-0}" != "1" ] \
-   && [ -t 1 ] \
+   && _is_tty \
    && command -v tmux >/dev/null 2>&1; then
   exec tmux new-session -A -s langdev
 fi

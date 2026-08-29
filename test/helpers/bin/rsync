@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for rsync. Records argv and exits 0. Present in PATH only for
+# tests that exercise langdev-sync's rsync branch; omit it to force the cp
+# fallback.
+{ printf 'rsync'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+exit 0
