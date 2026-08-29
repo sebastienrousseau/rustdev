@@ -65,7 +65,7 @@ jobs:
             }]
           }' sc.json > shellcheck.sarif
       - name: Upload ShellCheck SARIF
-        uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           sarif_file: shellcheck.sarif
           category: shellcheck
@@ -90,7 +90,7 @@ jobs:
           output: trivy-config.sarif
           exit-code: "0"   # advisory — findings go to code-scanning
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           sarif_file: trivy-config.sarif
           category: trivy-config
@@ -115,7 +115,7 @@ jobs:
           output_file_path: .
           soft_fail: true
       - name: Upload Checkov SARIF
-        uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
+        uses: github/codeql-action/upload-sarif@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           sarif_file: results.sarif
           category: checkov
