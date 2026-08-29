@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # /etc/profile.d/rust.sh — Rust language fragment (rustdev)
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 #

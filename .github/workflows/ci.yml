@@ -35,7 +35,7 @@ jobs:
           files=$(git ls-files '*.sh' 'bin/langdev-sync' 'test/helpers/bin/*' 'test/helpers/common.bash')
           for f in $files; do
             if [ -f "$f" ]; then
-              shellcheck -x "$f"
+              shellcheck --shell=bash -x "$f"
             fi
           done
 
