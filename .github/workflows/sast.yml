@@ -107,7 +107,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Checkov scan
-        uses: bridgecrewio/checkov-action@16c078443ac4b4b1f694817dff28944de3d2a1ca # v12.3025.0
+        uses: bridgecrewio/checkov-action@5659ddea96102e16d8f221b3d8402453c0b1c150 # v12.3121.0
         with:
           directory: .
           framework: dockerfile,secrets
