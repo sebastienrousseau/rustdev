@@ -71,7 +71,7 @@ RUN set -eux; \
     chmod +x /tmp/rustup-init; \
     /tmp/rustup-init -y --no-modify-path --profile minimal \
       --default-toolchain "$RUST_VERSION" --default-host "$rustArch" \
-      --component rust-analyzer rust-src clippy; \
+      -c rust-analyzer -c rust-src -c clippy; \
     rm -f /tmp/rustup-init; \
     rustc --version; \
     cargo --version; \
