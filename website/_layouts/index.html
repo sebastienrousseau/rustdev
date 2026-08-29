@@ -13,24 +13,53 @@
       <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/{{name}}" target="_blank" rel="noopener">Star on GitHub</a>
     </div>
 
-    <!-- Authentic Code & Terminal IDE Preview -->
-    <figure class="terminal-preview-card">
+    <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->
+    <figure class="terminal-preview-card" aria-label="4-Pane TMUX IDE Grid Preview">
       <figcaption class="terminal-header">
         <div class="window-dots">
           <span class="dot dot-red" aria-hidden="true"></span>
           <span class="dot dot-yellow" aria-hidden="true"></span>
           <span class="dot dot-green" aria-hidden="true"></span>
         </div>
-        <div class="terminal-tab-bar">
-          <span class="tab-item active-tab font-mono">src/lib.rs</span>
-          <span class="tab-item font-mono">terminal</span>
+        <div class="terminal-tab-bar font-mono">
+          <span class="tmux-win-badge">[rustdev]</span>
+          <span class="tab-item active-tab">0:ide* (4 panes)</span>
+          <span class="tab-item">1:bash</span>
+          <span class="tab-item">2:mcp</span>
         </div>
         <div class="terminal-actions">
-          <span class="badge-status font-mono">● Rust 1.85 Edition 2024</span>
+          <span class="badge-status font-mono">● Rust 1.85 Edition 2024 (Prefix + i)</span>
         </div>
       </figcaption>
-      <div class="terminal-editor-pane">
-        <pre class="editor-code font-mono"><code><span class="code-comment">// src/lib.rs · Rust 1.85 Edition 2024 · Async Stdio Protocol Server</span>
+
+      <div class="tmux-grid">
+        <!-- Pane 1: Project Explorer (Left 20%) -->
+        <div class="tmux-pane pane-explorer font-mono">
+          <div class="pane-header">
+            <span class="pane-title">1: Explorer</span>
+            <span class="pane-badge">/work</span>
+          </div>
+          <div class="pane-content explorer-content">
+<div class="tree-node dir">▼ src/</div>
+<div class="tree-node file active">▶ lib.rs</div>
+<div class="tree-node file">  main.rs</div>
+<div class="tree-node dir">▼ tests/</div>
+<div class="tree-node file">  streams_test.rs</div>
+<div class="tree-node file">Cargo.toml</div>
+<div class="tree-node file">Cargo.lock</div>
+          </div>
+        </div>
+
+        <!-- Center Column: Pane 2 (Editor Top) + Pane 3 (Terminal Bottom) -->
+        <div class="tmux-center-col">
+          <!-- Pane 2: Editor (Neovim LSP) -->
+          <div class="tmux-pane pane-editor font-mono">
+            <div class="pane-header">
+              <span class="pane-title">2: Neovim (LSP)</span>
+              <span class="pane-file">src/lib.rs</span>
+            </div>
+            <div class="pane-content editor-content" tabindex="0" role="region" aria-label="Neovim Code Editor">
+              <pre class="editor-code font-mono"><code><span class="code-comment">// src/lib.rs · Rust 1.85 Edition 2024 · Async Streams</span>
 <span class="code-kw">pub async fn</span> <span class="code-fn">process_stream</span>&lt;S&gt;(<span class="code-kw">mut</span> stream: S) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">Metrics</span>, <span class="code-type">Error</span>&gt;
 <span class="code-kw">where</span>
     S: <span class="code-type">Stream</span>&lt;<span class="code-type">Item</span> = <span class="code-type">Event</span>&gt; + <span class="code-type">Unpin</span>,
@@ -41,12 +70,44 @@
     }
     <span class="code-type">Ok</span>(metrics)
 }</code></pre>
+            </div>
+          </div>
+
+          <!-- Pane 3: Integrated Shell / Test Runner -->
+          <div class="tmux-pane pane-terminal font-mono">
+            <div class="pane-header">
+              <span class="pane-title">3: Shell / Tests</span>
+              <span class="pane-badge">idle</span>
+            </div>
+            <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
+<div class="cli-line"><span class="mcp-tl-ps">$ </span>cargo test --all-targets &amp;&amp; cargo clippy -- -D warnings</div>
+<div class="cli-out">   Compiling rustdev v0.0.4 (/work) · 12 tests passed</div>
+<div class="cli-out cli-ok">test result: ok. 12 passed; 0 failed; 0 warnings</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane 4: AI Agent / MCP Server (Right 24%) -->
+        <div class="tmux-pane pane-ai font-mono">
+          <div class="pane-header">
+            <span class="pane-title">4: Claude Code</span>
+            <span class="pane-badge ai-badge">MCP Agent</span>
+          </div>
+          <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
+<div class="ai-prompt"><span class="ai-sym">&gt;</span> Claude Code (MCP)</div>
+<div class="ai-tool">⏺ Tool: rust-analyzer.diagnostics()</div>
+<div class="ai-res">✓ Send + Sync thread bounds verified</div>
+<div class="ai-tool">⏺ Tool: cargo.audit()</div>
+<div class="ai-res">✓ 0 known vulnerabilities in 42 crates</div>
+          </div>
+        </div>
       </div>
-      <div class="terminal-cli-pane font-mono">
-        <div class="cli-line"><span class="mcp-tl-ps">$ </span>cargo test --all-targets &amp;&amp; cargo clippy -- -D warnings</div>
-        <div class="cli-out">   Compiling rustdev-app v0.0.4 (/work) · 12 tests passed in 0.28s</div>
-        <div class="cli-line"><span class="mcp-tl-ask">&gt; </span>Claude MCP: Dispatch hermetic tool call in ephemeral worktree</div>
-        <div class="cli-out cli-ok">✓ 100% tests passed · 0 clippy warnings · sccache 100% hit rate · 0 vulnerabilities</div>
+
+      <!-- TMUX Status Bar -->
+      <div class="tmux-status-bar font-mono">
+        <span class="status-left">[rustdev:ide*] 0:nvim* 1:cargo 2:claude "rustdev-ide" 23:55</span>
+        <span class="status-center">muxtree: main (clean) · mcp: stdio (JSON-RPC)</span>
+        <span class="status-right">23:55 29-Aug-26</span>
       </div>
     </figure>
   </div>

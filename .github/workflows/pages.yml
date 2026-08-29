@@ -60,6 +60,7 @@ jobs:
           cp -f assets/logo.svg public/assets/logo.svg 2>/dev/null || true
           cp -f assets/logo.svg public/logo.svg 2>/dev/null || true
           cp _layouts/favicon.ico public/ 2>/dev/null || true
+          cp CNAME public/CNAME 2>/dev/null || true
 
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
