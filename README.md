@@ -1,20 +1,18 @@
 <!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
 <p align="center">
-  <img src="https://cloudcdn.pro/rustdev/v1/logos/rustdev.svg" alt="rustdev logo" width="128" />
+  <img src="assets/logo.svg" alt="rustdev logo" width="140" />
 </p>
 
 <h1 align="center">rustdev</h1>
 
 <p align="center">
-  A portable, disposable Rust development container — a pinned rustup
-  toolchain on the hardened <a href="https://github.com/sebastienrousseau/langdev">langdev</a>
-  core that builds with <b>both</b> Docker and Podman and boots the
-  developer's own dotfiles.
+  Portable, hardened Rust 1.85+ toolchain development container with TMUX IDE,
+  Model Context Protocol (MCP) AI agent tooling, rust-analyzer, clippy, cargo-audit, mobile WebTTY, and dotfiles bootstrap.
 </p>
 
 <p align="center">
-  <a href="https://github.com/sebastienrousseau/rustdev/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/rustdev/ci.yml?style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="https://github.com/sebastienrousseau/rustdev/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/rustdev/ci.yml?style=for-the-badge&logo=github" alt="Build" /></a>
   <a href="#license"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue?style=for-the-badge" alt="License: Apache-2.0 OR MIT" /></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/rustdev"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/rustdev?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" /></a>
   <a href="#portability"><img src="https://img.shields.io/badge/engines-docker%20%7C%20podman-1d63ed?style=for-the-badge&logo=docker" alt="Engines: Docker or Podman" /></a>
@@ -25,330 +23,154 @@
 
 ## Contents
 
-**Getting started**
-
-- [Quick start](#quick-start) — clone, `make up`, and you are in a dev shell
-- [Why this approach?](#why-this-approach) — the choices that shape the image
-
-**What you get**
-
-- [What's inside](#whats-inside) — the pinned toolchain, exactly
-- [The developer environment IS your dotfiles](#the-developer-environment-is-your-dotfiles) — no synthetic config, tmux loaded by default
-
-**Operational**
-
-- [Security model](#security-model) — the container threat model and controls
-- [Portability](#portability) — engines, architectures, host assumptions
-- [When not to use rustdev](#when-not-to-use-rustdev) — limitations, stated plainly
-- [Development](#development) — `make` targets, tests, lint, scan, SBOM, CI
-- [Documentation](#documentation) — community docs and the house style
+- [Quick start](#quick-start)
+- [The suite](#the-suite)
+- [2026 Developer & AI Capabilities](#2026-developer--ai-capabilities)
+- [Architecture & Design](#architecture--design)
+- [Security Model](#security-model)
+- [Portability](#portability)
+- [Development & Lifecycle](#development--lifecycle)
+- [Documentation](#documentation)
 - [License](#license)
 
 ---
 
 ## Quick start
 
-`rustdev` is standalone. Clone it, and one command gets you an
-interactive, hardened Rust shell in a fresh container:
+Clone this repository and spin up a complete, hardened Rust terminal IDE in seconds:
 
 ```sh
 git clone https://github.com/sebastienrousseau/rustdev.git
 cd rustdev
-make up                       # build (if needed) + interactive dev shell
+make up          # builds the image and launches the 4-pane TMUX IDE
 ```
 
-Other everyday commands:
+### Remote & Mobile Web Access
+
+Access your development environment from any iPad, tablet, or web browser:
 
 ```sh
-make run CMD="cargo test"     # one-shot command in a fresh container
-make trash                    # remove the image + dangling build cache
+make web         # starts dark-themed WebTTY at http://localhost:7681
+make web-auth    # starts WebTTY with password authentication
+make mosh        # starts roaming UDP shell that survives cellular IP handovers
+make doctor      # runs system diagnostics (container engine, tools, linters, clipboard)
 ```
 
-Your code is the **only** bind mount, at `/work`. Everything else is
-ephemeral (read-only rootfs + tmpfs), so a container is truly
-disposable. No registry pull and no network are needed on first launch —
-the image is built entirely from the repo you cloned, and the Neovim
-plugin set is baked headless at build time.
+When you are done:
+
+```sh
+make trash       # removes container image and build cache cleanly
+```
 
 ---
 
-## Why this approach?
+## The suite
 
-Most "Rust dev container" setups make one of two trades: a heavyweight,
-root-running image with the kitchen sink, or a bare `rust:alpine` that
-leaves you to reassemble your editor, shell, and tools every time.
-rustdev refuses both. Four choices, in priority order, shape the image:
+`rustdev` is the Rust member of the [`langdev`](https://github.com/sebastienrousseau/langdev) suite:
 
-1. **Secure by default, not by opt-in.** The container runs as a
-   non-root `dev` user (UID/GID 1000) with **all Linux capabilities
-   dropped**, `no-new-privileges`, and a **read-only root filesystem**;
-   writable state is confined to explicit `tmpfs` mounts. This is the
-   default `make up` posture, not a hardened variant you have to
-   remember to select. The threat model is [documented](SECURITY.md),
-   not implied.
-
-2. **Ultra-small but complete.** A multi-stage build installs the Rust
-   toolchain into a relocatable prefix and copies **only** that prefix
-   into the runtime image — `build-base` and `curl` never reach the
-   final layer. "Complete" is measured against a real Rust workflow:
-   you can edit, build, test, lint, and audit without reaching outside
-   the container.
-
-3. **Portable and disposable.** One OCI `Containerfile` builds with
-   Docker, Podman, Buildah, and nerdctl. The `Makefile` auto-detects the
-   engine and adjusts flags (SELinux `:Z` mounts) accordingly. Images
-   are multi-arch (`linux/amd64`, `linux/arm64`). The only bind mount is
-   your project at `/work`, and `make trash` leaves nothing behind.
-
-4. **Reliable and reproducible.** Everything is pinned: the Alpine base
-   **by digest**, the Rust toolchain and cargo tools by version, and
-   Neovim plugins via the dotfiles' `lazy-lock.json`. `rustup-init` is
-   **checksum-verified** (musl amd64 + arm64) — there is no `curl | sh`
-   anywhere in the build. Pin `DOTFILES_REF` to a tag or commit and the
-   image is reproducible; the exact dotfiles commit bundled is recorded
-   at `~/.dotfiles.commit`.
-
-Everything language-agnostic — the entrypoint, dotfiles bootstrap, and
-`Containerfile`/`compose`/`Makefile` shape — is **vendored** from the
-[`langdev`](https://github.com/sebastienrousseau/langdev) core under
-`common/` and refreshed with `make sync-common`. rustdev is therefore a
-complete, auditable unit on its own, with no base-image drift and no
-supply-chain hop at build time.
+| Repository | Language Stack | Built-In Tooling | Status |
+|---|---|---|:---:|
+| [**`langdev`**](https://github.com/sebastienrousseau/langdev) | Core Foundation | Hardened runtime, TMUX IDE, MCP server, `ai-pack`, WebTTY | `v0.0.4` |
+| [**`pythondev`**](https://github.com/sebastienrousseau/pythondev) | Python 3.12+ | `uv`, `ruff`, `mypy`, `pytest`, `debugpy`, Pyright | `v0.0.4` |
+| [**`rustdev`**](https://github.com/sebastienrousseau/rustdev) | Rust 1.85+ | `rustup`, `rust-analyzer`, `clippy`, `cargo-audit`, `sccache` | `v0.0.4` |
+| [**`godev`**](https://github.com/sebastienrousseau/godev) | Go 1.24+ | `gopls`, `golangci-lint`, `delve`, Go toolchain | `v0.0.4` |
+| [**`javadev`**](https://github.com/sebastienrousseau/javadev) | Java 21+ | OpenJDK 21, Maven, Gradle, JDTLS | `v0.0.4` |
+| [**`swiftdev`**](https://github.com/sebastienrousseau/swiftdev) | Swift 6.0+ | Swift toolchain, SourceKit-LSP, `swift-format` | `v0.0.4` |
 
 ---
 
-## What's inside
+## 2026 Developer & AI Capabilities
 
-Everything is pinned. Bump the toolchain inputs together (see the build
-args at the top of the `Containerfile`).
+Every container in the suite includes native, pre-configured tooling for modern AI-assisted engineering:
 
-| Component | Version | How it's pinned |
-|---|---|---|
-| Alpine base | `3.22` | by digest `sha256:14358309…695dce` |
-| Rust (stable) | `1.98.0` | `RUST_VERSION` build arg |
-| rustup | `1.29.0` | `RUSTUP_VERSION`; `rustup-init` sha256-verified (musl amd64 + arm64) |
-| `cargo-audit` | `0.22.2` | `cargo install --locked --version` |
-| `cargo-watch` | `8.5.3` | `cargo install --locked --version` |
-| rust-analyzer / clippy / rust-src | (with `1.98.0`) | rustup components |
-| Dotfiles (shell/tmux/nvim) | latest | `DOTFILES_REF` build arg (pin a tag/commit) |
-| Neovim plugins | — | your dotfiles' `nvim/lazy-lock.json` (baked headless at build) |
+### 1. 4-Pane TMUX IDE (`Prefix + i`)
+- **Left Panel (20% W)**: Intelligent project explorer (`langdev-explorer`, `yazi`) with visual Git branch status.
+- **Center-Top (56% W, 70% H)**: Editor pane loaded with Neovim and `rust-analyzer`.
+- **Center-Bottom (56% W, 30% H)**: Integrated bash terminal with Cargo toolchain on PATH.
+- **Right Panel (24% W)**: Dedicated AI Agent terminal (Claude Code, Agy, Aider, Ollama).
 
-The toolchain is built in a separate `toolchain` stage; only its
-relocatable prefix (`/opt/langdev/toolchain`) is copied into the final
-image, so `build-base` and `curl` never reach the runtime layer.
-`rust-analyzer`, `cargo`, `clippy`, `cargo-audit`, and `cargo-watch` are
-all on `PATH`.
+### 2. Parallel AI Task Worktrees (`muxtree` / `Prefix + m`)
+- Automates Git worktrees paired with dedicated TMUX sessions (`muxtree new <branch>`, `muxtree list`, `muxtree switch`).
+- Allows human developers and autonomous AI agents to work on separate features concurrently in isolated branches without workspace collisions.
 
-Rust-specific login-shell setup lives in `dotfiles.d/rust.sh`, installed
-to `/etc/profile.d/rust.sh` (root-owned, `0644`) so every login shell
-sources it without touching your pristine dotfiles. It exports
-`CARGO_HOME` and `RUSTUP_HOME`, prepends `$CARGO_HOME/bin` to `PATH`
-(guarding against duplicates so it is safe to re-source), and adds these
-aliases — **only** for tools actually present in the image:
+### 3. Model Context Protocol (MCP) Server (`/usr/local/bin/mcp-server`)
+- Standard JSON-RPC 2.0 stdio MCP server exposing container workspace tools (`list_files`, `read_file`, `git_status`, `git_diff`, `run_tests`, `run_command`).
+- Pre-configured `common/mcp.json` configuration template for Claude Code, Cursor, and Aider.
 
-| Alias | Expands to |
-|---|---|
-| `cb` | `cargo build` |
-| `cr` | `cargo run` |
-| `ct` | `cargo test` |
-| `cc` | `cargo check` |
-| `ccl` | `cargo clippy --all-targets --all-features` |
-| `cw` | `cargo watch -x check` |
-| `caudit` | `cargo audit` |
+### 4. AI Context Packing (`ai-pack`)
+- High-speed repository context bundler formatting source code into token-efficient XML or Markdown for LLM prompt injection (`ai-pack --format markdown -o context.md`).
 
-It does **not** propagate any host `PATH`.
+### 5. Universal Clipboard (OSC 52)
+- Seamless copy-paste synchronization across container, host macOS/Linux/Windows, SSH sessions, and mobile Safari.
+
+### 6. Floating TUI Modals
+- **`Prefix + g`**: Instant floating Lazygit modal popup.
+- **`Prefix + d`**: Instant floating Lazydocker process monitor popup.
 
 ---
 
-## The developer environment IS your dotfiles
+## Architecture & Design
 
-rustdev does **not** ship a synthetic shell or editor config. At build
-time the image clones the user's chezmoi-managed
-[dotfiles repo](https://github.com/sebastienrousseau/dotfiles) and runs
-`chezmoi apply`, so the container has the *real* bashrc, aliases, tmux
-config, and Neovim setup — **always the latest** by default. Pin
-`DOTFILES_REF` to a tag or commit for a reproducible build; the exact
-commit bundled is recorded at `~/.dotfiles.commit`.
-
-- **tmux is installed and loaded by default.** An interactive shell
-  attaches to (or creates) a persistent `langdev` tmux session, so panes
-  and windows survive detach. Opt out with `LANGDEV_NO_TMUX=1`.
-- **The dotfiles' Neovim config is authoritative.** rustdev drops
-  exactly one `nvim/plugins.local/lang.lua` spec into the config's
-  `plugins.local/` directory (auto-imported via that convention). It is
-  an ordinary lazy.nvim spec, so it composes with the rest of your setup
-  untouched.
-- **LSP via `rustaceanvim`.** Rust is wired through
-  `mrcjkb/rustaceanvim` (the maintained successor to the archived
-  `rust-tools.nvim`), pointed at the build-time `rust-analyzer` on
-  `PATH` — no Mason, no network on first launch. Treesitter grammars
-  `rust` and `ron` are added on top of your set.
-- **Baked, offline-ready.** The full plugin set (yours plus this spec)
-  is baked headless at build time from your dotfiles'
-  `nvim/lazy-lock.json`, so the container is reproducible and needs no
-  network on first launch.
+1. **The Developer Environment IS Your Dotfiles**:
+   At build time, each image clones your chezmoi-managed dotfiles repository and applies your personalized shell, prompt, and editor configurations. No synthetic configurations.
+2. **Vendored Core (`common/`)**:
+   Shared runtime logic is vendored into each repository under `common/` and synchronized using `bin/langdev-sync`. Every repository is 100% standalone and buildable.
 
 ---
 
-## Security model
+## Security Model
 
-The full threat model and the private disclosure process are in
-[`SECURITY.md`](SECURITY.md). Enforced by `compose.yaml` and mirrored in
-`make run` / `make shell`:
-
-- **Non-root.** Runs as `dev` (UID/GID 1000); no `sudo`, no setuid
-  binaries in the image (setuid/setgid bits stripped at build; `/tmp` is
-  `1777`, sticky — not `777`).
-- **Least privilege at runtime.** `cap_drop: [ALL]`,
-  `security_opt: [no-new-privileges:true]`, `read_only: true` (with
-  `tmpfs` for `/tmp`, `/home/dev/.cache`, and `/home/dev/.local/state`),
-  and `init: true` (tini as PID 1 for clean signal handling).
-- **Resource limits.** `pids_limit: 512`, `mem_limit: 2g`, `cpus: 2.0`.
-- **Pinned, checksummed inputs.** Base image pinned **by digest**;
-  `rustup-init` checksum-verified; cargo tools installed `--locked` and
-  version-pinned — never `curl | sh`.
-- **No committed secrets.** No `.env` is committed or `COPY`'d into an
-  image — secrets are runtime-only via compose `env_file`. `.env` is
-  gitignored **and** dockerignored. rustdev needs no secrets to build or
-  run.
-- **One bind mount.** The only bind mount is your project directory at
-  `/work`.
-- **CI gates every change.** `hadolint`, `shellcheck`, a Docker build,
-  and a Trivy image scan (fail on HIGH/CRITICAL) run on every push and
-  pull request; a CycloneDX SBOM is uploaded as an artifact.
-
-Report a vulnerability privately — see [`SECURITY.md`](SECURITY.md). Do
-not open a public issue.
+Every container adheres to strict security defaults documented in [`SECURITY.md`](SECURITY.md):
+- **Unprivileged Execution**: Runs as non-root `dev` user (UID/GID 1000).
+- **Capability Dropping**: `cap_drop: [ALL]` with `no-new-privileges:true`.
+- **Read-Only Root Filesystem**: Immutability enforced; temporary writes isolated to explicit `tmpfs` mounts.
+- **Supply-Chain Integrity**: Base images pinned by cryptographic digest, inputs checksum-verified, no unpinned `curl | sh`.
 
 ---
 
 ## Portability
 
-- **One `Containerfile` (OCI).** `docker build`, `podman build`,
-  `buildah`, and `nerdctl` all work from the same file.
-- **Engine autodetection.** The `Makefile` detects `docker` or `podman`
-  and adjusts flags (SELinux `:Z` mounts) accordingly.
-- **Multi-arch.** Images build for `linux/amd64` and `linux/arm64` via
-  `docker buildx` / `podman --platform`.
-- **No host assumptions.** The only bind mount is your project directory
-  at `/work`; there are no host-path assumptions beyond it.
+- **Single OCI `Containerfile`**: Builds identically under Docker, Podman, Buildah, and nerdctl.
+- **Engine Autodetection**: `Makefile` auto-detects Docker or Podman and configures flags (SELinux `:Z`, user namespaces) automatically.
+- **Multi-Architecture**: Multi-arch builds for `linux/amd64` and `linux/arm64`.
 
 ---
 
-## When not to use rustdev
-
-Stated plainly, so you can rule it out fast:
-
-- **You need a production runtime image.** rustdev builds a *development*
-  environment — editor, LSP, test and audit tooling, a shell. It is
-  deliberately not a minimal production artifact; ship a separate,
-  slimmer image (or a `FROM scratch` static binary) for that.
-- **You do not use chezmoi-managed dotfiles.** The environment *is* the
-  user's dotfiles. Without a chezmoi dotfiles repo you lose the main
-  point, though the hardening and Rust toolchain layers still stand on
-  their own.
-- **You need a nightly toolchain or extra targets by default.** rustdev
-  ships one pinned stable toolchain with a minimal component set. Extra
-  targets, components, or a nightly channel are deliberate additions,
-  not the default.
-- **You need GPU passthrough or host-device access.** The default
-  posture drops all capabilities and forbids privilege escalation.
-  Workloads that need device access require deliberate, documented
-  relaxations that run against the grain of the design.
-- **You are on a platform without Docker or Podman.** There is no
-  VM-less fallback; rustdev targets an OCI engine on Linux, macOS, or
-  Windows/WSL2.
-
----
-
-## Development
-
-The `Makefile` exposes the full lifecycle and auto-detects `docker` or
-`podman` (adding `:Z` SELinux mount flags for Podman), so the same
-commands work with either engine:
+## Development & Lifecycle
 
 ```sh
 make up          # build + interactive dev shell (alias: make shell)
-make run CMD=…   # one-shot command in a fresh container
-make build       # build the image for the host arch
-make buildx      # multi-arch build (linux/amd64, linux/arm64)
-make lint        # hadolint the Containerfile + shellcheck the scripts
-make scan        # Trivy vulnerability scan (fail on HIGH/CRITICAL)
-make sbom        # CycloneDX SBOM via syft
-make trash       # remove the image and dangling build cache
-make sync-common # refresh common/ from the langdev source
+make web         # launch WebTTY browser IDE on port 7681
+make mosh        # launch UDP roaming mosh session
+make doctor      # run container & system diagnostic healthcheck
+make test        # run hermetic Bats unit test suite
+make coverage    # run unit tests with kcov coverage gate (>=95%)
+make lint        # run shellcheck on scripts + hadolint on Containerfiles
+make scan        # run Trivy vulnerability scanner
+make sbom        # generate CycloneDX software bill of materials
+make trash       # purge local image and cache
 ```
-
-### Tests and coverage
-
-The language-agnostic shell core — `common/bootstrap-dotfiles.sh` and
-`common/entrypoint.sh` — is vendored verbatim from the
-[`langdev`](https://github.com/sebastienrousseau/langdev) core and
-refreshed with `make sync-common`. That core is unit-tested with
-[bats-core](https://github.com/bats-core/bats-core) under
-[kcov](https://github.com/SimonKagstrom/kcov) in the langdev repo, whose
-`make test` / `make coverage` gate **fails below 95 % line coverage**.
-The tests are hermetic — `git`, `chezmoi`, `nvim`, `tmux`, and `rsync`
-are test doubles on a closed `PATH`, so no network or container is
-needed. The suite and its coverage gate are documented in
-[langdev's `test/README.md`](https://github.com/sebastienrousseau/langdev/blob/main/test/README.md).
-
-### CI and security workflows
-
-This repo's [`.github/workflows/ci.yml`](.github/workflows/ci.yml) gates
-every push and pull request with `hadolint`, `shellcheck`, a Docker
-build, a Trivy image scan (fail on HIGH/CRITICAL), and a CycloneDX SBOM
-artifact. The suite's OpenSSF hardening workflows are maintained in the
-langdev core and provisioned across the suite from
-[`templates/github-workflows/`](https://github.com/sebastienrousseau/langdev/tree/main/templates/github-workflows):
-
-| Workflow | What it gates |
-|---|---|
-| `ci.yml` | shellcheck, hadolint, Docker build, Trivy image scan (fail HIGH/CRITICAL), CycloneDX SBOM |
-| `scorecard.yml` | OpenSSF Scorecard, results published + SARIF to code-scanning |
-| `sast.yml` | ShellCheck + Trivy config + Checkov, SARIF → code-scanning |
-| `dependency-review.yml` | dependency + action changes reviewed on every PR |
-
-The OpenSSF Best-Practices self-assessment lives in the langdev core's
-[`doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md);
-a maintainer can apply the branch-protection ruleset with langdev's
-[`scripts/set-branch-protection.sh`](https://github.com/sebastienrousseau/langdev/blob/main/scripts/set-branch-protection.sh).
-
-Contributions require signed commits and Conventional Commit messages —
-see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
 ## Documentation
 
-| Document | What it covers |
+| Document | Description |
 |---|---|
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/test/lint/scan/sbom, signed commits, Conventional Commits. |
-| [`SECURITY.md`](SECURITY.md) | The container threat model and the private disclosure process. |
-| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Community standards and enforcement. |
-| [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides what, and how the maintainer base is meant to grow. |
-| [`SUPPORT.md`](SUPPORT.md) | Where to go for questions, bugs, and feature requests. |
-| [`CHANGELOG.md`](CHANGELOG.md) | Notable changes, Keep a Changelog format. |
-| [langdev `doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md) | OpenSSF Best-Practices self-assessment for the suite. |
-
-rustdev follows the langdev suite's house style — see
-[`STYLE.md`](https://github.com/sebastienrousseau/langdev/blob/main/STYLE.md)
-in the `langdev` core.
+| [`STYLE.md`](STYLE.md) | House style, standards, and conventions across repositories. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contribution guidelines, testing standards, signed commits. |
+| [`SECURITY.md`](SECURITY.md) | Vulnerability disclosure policy and threat model. |
+| [`GOVERNANCE.md`](GOVERNANCE.md) | Maintainer governance and decision-making model. |
+| [`SUPPORT.md`](SUPPORT.md) | Getting help, opening issues, and discussions. |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Contributor covenant code of conduct. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Version releases and change history. |
 
 ---
 
 ## License
 
-Licensed under either of
-
+Licensed under either of:
 - Apache License, Version 2.0 ([`LICENSE-APACHE`](LICENSE-APACHE))
 - MIT license ([`LICENSE-MIT`](LICENSE-MIT))
 
-at your option. The suite is dual-licensed `Apache-2.0 OR MIT`; every
-non-vendored file carries an `SPDX-License-Identifier: Apache-2.0 OR MIT`
-header.
-
-Unless you explicitly state otherwise, any contribution intentionally
-submitted for inclusion in the work by you, as defined in the Apache-2.0
-license, shall be dual licensed as above, without any additional terms
-or conditions.
+at your option. Dual-licensed `Apache-2.0 OR MIT`.

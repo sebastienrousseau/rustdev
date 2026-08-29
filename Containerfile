@@ -160,10 +160,12 @@ COPY common/muxtree.sh /usr/local/bin/muxtree
 COPY common/doctor.sh /usr/local/bin/langdev-doctor
 COPY common/mcp-server.sh /usr/local/bin/mcp-server
 COPY common/ai-pack.sh /usr/local/bin/ai-pack
+COPY common/explorer.sh /usr/local/bin/langdev-explorer
 COPY common/mcp.json /etc/langdev-mcp.json
 COPY common/tmux.conf /etc/tmux.conf
 RUN chmod 0755 /usr/local/bin/langdev-entrypoint /usr/local/bin/tmux-ide /usr/local/bin/muxtree \
                /usr/local/bin/langdev-doctor /usr/local/bin/mcp-server /usr/local/bin/ai-pack \
+               /usr/local/bin/langdev-explorer \
  && chmod 0644 /etc/tmux.conf /etc/langdev-mcp.json \
  && mkdir -p /usr/local/lib/langdev
 

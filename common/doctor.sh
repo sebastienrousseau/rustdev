@@ -24,7 +24,7 @@ warn() { printf "  ${YELLOW}▲ [WARN]${RESET} %s\n" "$1"; }
 fail() { printf "  ${RED}✖ [FAIL]${RESET} %s\n" "$1"; }
 info() { printf "  ${CYAN}ℹ [INFO]${RESET} %s\n" "$1"; }
 
-printf "\n${BOLD}=== langdev System & Container Diagnostics ===${RESET}\n\n"
+printf '\n%s=== langdev System & Container Diagnostics ===%s\n\n' "$BOLD" "$RESET"
 
 # 1. Host Architecture & OS
 OS="$(uname -s)"
@@ -32,9 +32,7 @@ ARCH="$(uname -m)"
 info "Host Platform: $OS ($ARCH)"
 
 # 2. Container Engine
-ENGINE=""
 if command -v docker >/dev/null 2>&1; then
-  ENGINE="docker"
   DOCKER_VER="$(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')"
   if docker info >/dev/null 2>&1; then
     pass "Docker Engine installed & running ($DOCKER_VER)"
@@ -42,7 +40,6 @@ if command -v docker >/dev/null 2>&1; then
     warn "Docker binary found ($DOCKER_VER) but daemon is not responding."
   fi
 elif command -v podman >/dev/null 2>&1; then
-  ENGINE="podman"
   PODMAN_VER="$(podman --version 2>/dev/null | awk '{print $3}')"
   pass "Podman installed ($PODMAN_VER)"
 else
@@ -82,4 +79,4 @@ for agent in claude agy aider ollama; do
   fi
 done
 
-printf "\n${BOLD}Diagnostics completed.${RESET}\n\n"
+printf '\n%sDiagnostics completed.%s\n\n' "$BOLD" "$RESET"

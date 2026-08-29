@@ -37,7 +37,7 @@ mkdir -p "$COV_DIR"
 # report to the three scripts under test (stubs and bats internals excluded).
 kcov \
   --clean \
-  --include-pattern=bootstrap-dotfiles.sh,entrypoint.sh,langdev-sync,rust.sh \
+  --include-pattern=bootstrap-dotfiles.sh,entrypoint.sh,langdev-sync,rust.sh,doctor.sh,explorer.sh,mcp-server.sh,ai-pack.sh,muxtree.sh,tmux-ide.sh \
   --exclude-pattern=/test/,/helpers/ \
   "$COV_DIR" \
   bats --recursive "$TEST_DIR"

@@ -45,7 +45,7 @@ generate_xml() {
       size=$(wc -c < "$f" 2>/dev/null || echo 0)
       if [ "$size" -lt "$MAX_BYTES" ] && [ "$size" -gt 0 ]; then
         echo "  <file path=\"$f\">"
-        cat "$f" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g'
+        sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g' < "$f"
         echo "  </file>"
       fi
     fi
@@ -63,7 +63,7 @@ generate_markdown() {
       if [ "$size" -lt "$MAX_BYTES" ] && [ "$size" -gt 0 ]; then
         echo "## File: \`$f\`"
         echo '```'
-        cat "$f"
+        cat < "$f"
         echo '```'
         echo ""
       fi

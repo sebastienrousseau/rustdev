@@ -116,6 +116,8 @@ apply_ide_layout() {
   # Left Pane: File explorer or project overview banner
   if command -v yazi >/dev/null 2>&1; then
     tmux send-keys -t "$TARGET_WIN.1" "yazi" C-m
+  elif command -v langdev-explorer >/dev/null 2>&1; then
+    tmux send-keys -t "$TARGET_WIN.1" "langdev-explorer" C-m
   else
     tmux send-keys -t "$TARGET_WIN.1" "clear && ls -la && echo '' && echo '📁 [Explorer Pane] Type e <file> to edit'" C-m
   fi

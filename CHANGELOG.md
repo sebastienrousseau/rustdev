@@ -9,6 +9,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-08-29
+
+### Added
+
+- **TUI Power Suite & Interactive Explorer.**
+  - Added `common/explorer.sh` providing an interactive TUI sidebar for Left Panel navigation with Git branch context, dirty file indicators, visual tree view, and Neovim editor dispatch.
+  - Enhanced `common/tmux-ide.sh` to auto-detect and launch Yazi or the interactive project explorer.
+- **Bats Unit Tests.**
+  - Added `test/explorer.bats`.
+
 ## [0.0.3] - 2026-08-29
 
 ### Added

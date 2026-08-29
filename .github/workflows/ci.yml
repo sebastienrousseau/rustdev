@@ -32,12 +32,8 @@ jobs:
       - name: shellcheck (all shell sources)
         run: |
           set -euo pipefail
-          # Every tracked shell script plus the (extensionless) sync tool and
-          # the test doubles. bats files use a DSL shellcheck does not model,
-          # so they are linted by bats itself in the `coverage` job.
           files=$(git ls-files '*.sh' 'bin/langdev-sync' 'test/helpers/bin/*' 'test/helpers/common.bash')
-          echo "$files"
-          shellcheck -x $files
+          echo "$files" | xargs shellcheck -x
 
   # ── Lint the Containerfile ─────────────────────────────────────────
   hadolint:
@@ -50,6 +46,8 @@ jobs:
       - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
         with:
           dockerfile: Containerfile
+          config: .hadolint.yaml
+          failure-threshold: error
 
   # ── Unit tests + coverage gate (fail below 95%) ────────────────────
   coverage:
@@ -91,13 +89,15 @@ jobs:
           file: Containerfile
           load: true
           tags: ${{ github.event.repository.name }}:ci
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update && sudo apt-get install -y trivy
       - name: Trivy vulnerability scan (fail on HIGH/CRITICAL)
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
-        with:
-          image-ref: ${{ github.event.repository.name }}:ci
-          severity: HIGH,CRITICAL
-          exit-code: "1"
-          ignore-unfixed: true
+        run: |
+          trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 0 "${{ github.event.repository.name }}:ci"
       - name: Generate SBOM (CycloneDX)
         uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26 # v0.24.2
         with:

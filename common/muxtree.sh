@@ -98,7 +98,7 @@ cmd_list() {
   git worktree list --porcelain | while read -r line; do
     if [[ "$line" =~ ^worktree\ (.*) ]]; then
       local wt_path="${BASH_REMATCH[1]}"
-      read -r head_line
+      read -r _
       read -r branch_line
       local branch_name="detached"
       if [[ "$branch_line" =~ ^branch\ refs/heads/(.*) ]]; then
