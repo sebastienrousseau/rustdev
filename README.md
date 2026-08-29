@@ -27,12 +27,12 @@
 
 **Getting started**
 
-- [Quick start](#quick-start) — `make up`, and you are in a dev shell
-- [Why this approach?](#why-this-approach) — the four choices that shape the image
+- [Quick start](#quick-start) — clone, `make up`, and you are in a dev shell
+- [Why this approach?](#why-this-approach) — the choices that shape the image
 
 **What you get**
 
-- [What's inside](#whats-inside) — the pinned Rust toolchain, exactly
+- [What's inside](#whats-inside) — the pinned toolchain, exactly
 - [The developer environment IS your dotfiles](#the-developer-environment-is-your-dotfiles) — no synthetic config, tmux loaded by default
 
 **Operational**
@@ -40,7 +40,7 @@
 - [Security model](#security-model) — the container threat model and controls
 - [Portability](#portability) — engines, architectures, host assumptions
 - [When not to use rustdev](#when-not-to-use-rustdev) — limitations, stated plainly
-- [Development](#development) — `make` targets, lint, scan, SBOM, CI
+- [Development](#development) — `make` targets, tests, lint, scan, SBOM, CI
 - [Documentation](#documentation) — community docs and the house style
 - [License](#license)
 
@@ -83,9 +83,9 @@ rustdev refuses both. Four choices, in priority order, shape the image:
    non-root `dev` user (UID/GID 1000) with **all Linux capabilities
    dropped**, `no-new-privileges`, and a **read-only root filesystem**;
    writable state is confined to explicit `tmpfs` mounts. This is the
-   default `make up` posture, not a hardened variant you must remember
-   to select. The threat model is [documented](SECURITY.md), not
-   implied.
+   default `make up` posture, not a hardened variant you have to
+   remember to select. The threat model is [documented](SECURITY.md),
+   not implied.
 
 2. **Ultra-small but complete.** A multi-stage build installs the Rust
    toolchain into a relocatable prefix and copies **only** that prefix
@@ -107,6 +107,13 @@ rustdev refuses both. Four choices, in priority order, shape the image:
    anywhere in the build. Pin `DOTFILES_REF` to a tag or commit and the
    image is reproducible; the exact dotfiles commit bundled is recorded
    at `~/.dotfiles.commit`.
+
+Everything language-agnostic — the entrypoint, dotfiles bootstrap, and
+`Containerfile`/`compose`/`Makefile` shape — is **vendored** from the
+[`langdev`](https://github.com/sebastienrousseau/langdev) core under
+`common/` and refreshed with `make sync-common`. rustdev is therefore a
+complete, auditable unit on its own, with no base-image drift and no
+supply-chain hop at build time.
 
 ---
 
@@ -166,11 +173,11 @@ commit bundled is recorded at `~/.dotfiles.commit`.
 - **tmux is installed and loaded by default.** An interactive shell
   attaches to (or creates) a persistent `langdev` tmux session, so panes
   and windows survive detach. Opt out with `LANGDEV_NO_TMUX=1`.
-- **The dotfiles' Neovim config is authoritative.** rustdev makes
-  exactly one addition: `nvim/plugins.local/lang.lua` is dropped into
-  the config at `~/.config/nvim/lua/plugins.local/` (the dotfiles'
-  auto-imported local-override convention). It is an ordinary lazy.nvim
-  spec, so it composes with the rest of your setup untouched.
+- **The dotfiles' Neovim config is authoritative.** rustdev drops
+  exactly one `nvim/plugins.local/lang.lua` spec into the config's
+  `plugins.local/` directory (auto-imported via that convention). It is
+  an ordinary lazy.nvim spec, so it composes with the rest of your setup
+  untouched.
 - **LSP via `rustaceanvim`.** Rust is wired through
   `mrcjkb/rustaceanvim` (the maintained successor to the archived
   `rust-tools.nvim`), pointed at the build-time `rust-analyzer` on
@@ -200,12 +207,12 @@ The full threat model and the private disclosure process are in
 - **Pinned, checksummed inputs.** Base image pinned **by digest**;
   `rustup-init` checksum-verified; cargo tools installed `--locked` and
   version-pinned — never `curl | sh`.
-- **One bind mount.** The only bind mount is your project directory at
-  `/work`.
 - **No committed secrets.** No `.env` is committed or `COPY`'d into an
   image — secrets are runtime-only via compose `env_file`. `.env` is
   gitignored **and** dockerignored. rustdev needs no secrets to build or
   run.
+- **One bind mount.** The only bind mount is your project directory at
+  `/work`.
 - **CI gates every change.** `hadolint`, `shellcheck`, a Docker build,
   and a Trivy image scan (fail on HIGH/CRITICAL) run on every push and
   pull request; a CycloneDX SBOM is uploaded as an artifact.
@@ -272,8 +279,41 @@ make trash       # remove the image and dangling build cache
 make sync-common # refresh common/ from the langdev source
 ```
 
-CI (`.github/workflows/ci.yml`) runs the lint and build/scan jobs on
-every push and pull request, uploading a CycloneDX SBOM artifact.
+### Tests and coverage
+
+The language-agnostic shell core — `common/bootstrap-dotfiles.sh` and
+`common/entrypoint.sh` — is vendored verbatim from the
+[`langdev`](https://github.com/sebastienrousseau/langdev) core and
+refreshed with `make sync-common`. That core is unit-tested with
+[bats-core](https://github.com/bats-core/bats-core) under
+[kcov](https://github.com/SimonKagstrom/kcov) in the langdev repo, whose
+`make test` / `make coverage` gate **fails below 95 % line coverage**.
+The tests are hermetic — `git`, `chezmoi`, `nvim`, `tmux`, and `rsync`
+are test doubles on a closed `PATH`, so no network or container is
+needed. The suite and its coverage gate are documented in
+[langdev's `test/README.md`](https://github.com/sebastienrousseau/langdev/blob/main/test/README.md).
+
+### CI and security workflows
+
+This repo's [`.github/workflows/ci.yml`](.github/workflows/ci.yml) gates
+every push and pull request with `hadolint`, `shellcheck`, a Docker
+build, a Trivy image scan (fail on HIGH/CRITICAL), and a CycloneDX SBOM
+artifact. The suite's OpenSSF hardening workflows are maintained in the
+langdev core and provisioned across the suite from
+[`templates/github-workflows/`](https://github.com/sebastienrousseau/langdev/tree/main/templates/github-workflows):
+
+| Workflow | What it gates |
+|---|---|
+| `ci.yml` | shellcheck, hadolint, Docker build, Trivy image scan (fail HIGH/CRITICAL), CycloneDX SBOM |
+| `scorecard.yml` | OpenSSF Scorecard, results published + SARIF to code-scanning |
+| `sast.yml` | ShellCheck + Trivy config + Checkov, SARIF → code-scanning |
+| `dependency-review.yml` | dependency + action changes reviewed on every PR |
+
+The OpenSSF Best-Practices self-assessment lives in the langdev core's
+[`doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md);
+a maintainer can apply the branch-protection ruleset with langdev's
+[`scripts/set-branch-protection.sh`](https://github.com/sebastienrousseau/langdev/blob/main/scripts/set-branch-protection.sh).
+
 Contributions require signed commits and Conventional Commit messages —
 see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
@@ -283,16 +323,17 @@ see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 | Document | What it covers |
 |---|---|
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/lint/scan/sbom, signed commits, Conventional Commits. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/test/lint/scan/sbom, signed commits, Conventional Commits. |
 | [`SECURITY.md`](SECURITY.md) | The container threat model and the private disclosure process. |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Community standards and enforcement. |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides what, and how the maintainer base is meant to grow. |
 | [`SUPPORT.md`](SUPPORT.md) | Where to go for questions, bugs, and feature requests. |
-| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Community standards and enforcement. |
 | [`CHANGELOG.md`](CHANGELOG.md) | Notable changes, Keep a Changelog format. |
+| [langdev `doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md) | OpenSSF Best-Practices self-assessment for the suite. |
 
 rustdev follows the langdev suite's house style — see
 [`STYLE.md`](https://github.com/sebastienrousseau/langdev/blob/main/STYLE.md)
-in the `langdev` repo.
+in the `langdev` core.
 
 ---
 
@@ -304,7 +345,8 @@ Licensed under either of
 - MIT license ([`LICENSE-MIT`](LICENSE-MIT))
 
 at your option. The suite is dual-licensed `Apache-2.0 OR MIT`; every
-file carries an `SPDX-License-Identifier: Apache-2.0 OR MIT` header.
+non-vendored file carries an `SPDX-License-Identifier: Apache-2.0 OR MIT`
+header.
 
 Unless you explicitly state otherwise, any contribution intentionally
 submitted for inclusion in the work by you, as defined in the Apache-2.0
