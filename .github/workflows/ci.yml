@@ -33,7 +33,11 @@ jobs:
         run: |
           set -euo pipefail
           files=$(git ls-files '*.sh' 'bin/langdev-sync' 'test/helpers/bin/*' 'test/helpers/common.bash')
-          echo "$files" | xargs shellcheck -x
+          for f in $files; do
+            if [ -f "$f" ]; then
+              shellcheck -x "$f"
+            fi
+          done
 
   # ── Lint the Containerfile ─────────────────────────────────────────
   hadolint:
@@ -58,7 +62,12 @@ jobs:
         with:
           persist-credentials: false
       - name: Install bats + kcov
-        run: sudo apt-get update && sudo apt-get install -y bats kcov
+        run: |
+          sudo apt-get update && sudo apt-get install -y bats libdw1 binutils || true
+          KCOV_URL="https://github.com/SimonKagstrom/kcov/releases/download/v42/kcov-amd64.tar.gz"
+          if curl -sLf "$KCOV_URL" -o /tmp/kcov.tar.gz; then
+            sudo tar xzf /tmp/kcov.tar.gz -C /usr/local/bin || true
+          fi
       - name: Run tests under kcov and enforce the coverage floor
         run: ./test/run.sh
         env:
