@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for nvim. Records argv; answers --version so a HEALTHCHECK-style
+# probe succeeds. The langdev shell scripts do not invoke nvim, but it is
+# stubbed so the test PATH is a faithful, hermetic mirror of the image.
+{ printf 'nvim'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+case "${1:-}" in
+  --version) printf 'NVIM v0.0.0-stub\n' ;;
+esac
+exit 0

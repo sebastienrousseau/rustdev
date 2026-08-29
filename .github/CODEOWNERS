@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# langdev CODEOWNERS — every path is owned by the project
+# maintainer. Adding co-maintainers in the future: assign them
+# to specific directory globs above the catch-all so PR reviews
+# are routed sensibly (for example, a language expert on a
+# `<language>dev` repo's toolchain stage).
+#
+# Reference: https://docs.github.com/en/repositories/managing-your-repositories-settings-and-features/customizing-your-repository/about-code-owners
+
+* @sebastienrousseau

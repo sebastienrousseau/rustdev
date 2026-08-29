@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+name: Bug report
+description: Report a build failure, a broken container, or incorrect suite behaviour.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A minimal, self-contained reproduction —
+        the exact `make` target or `docker`/`podman` command — is the
+        single most useful thing you can include.
+  - type: dropdown
+    id: repo
+    attributes:
+      label: Which image / repo?
+      options:
+        - langdev (shared core / templates)
+        - rustdev
+        - pythondev
+        - llamadev
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: engine
+    attributes:
+      label: Container engine
+      options:
+        - Docker
+        - Podman
+        - Other (note it below)
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: Where does it happen?
+      options:
+        - Build (make build / buildx)
+        - Startup (make up / entrypoint)
+        - Runtime (inside the container)
+        - Lint / scan / sbom
+        - sync-common
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How you invoked it
+      description: The exact `make` target or `docker`/`podman` command.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: Include the full build/run output or error, in a code block.
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Engine version + host OS/arch (e.g. `docker --version`, `uname -sm`).
+      placeholder: "Docker 27.1.1, macOS 15.5 arm64"
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues for a duplicate.
+          required: true
+        - label: The reproduction above is minimal and self-contained.
+          required: true
+        - label: This is not a security vulnerability (those go through SECURITY.md, privately).
+          required: true

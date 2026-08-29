@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & ideas
+    url: https://github.com/sebastienrousseau/langdev/discussions
+    about: Ask how to use langdev, or float an idea before filing a feature request.
+  - name: Security vulnerability
+    url: https://github.com/sebastienrousseau/langdev/security/advisories/new
+    about: Report a vulnerability privately — please do NOT open a public issue (see SECURITY.md).

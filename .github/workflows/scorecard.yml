@@ -1,0 +1,50 @@
+# OpenSSF Scorecard (langdev core repo — mirrors templates/github-workflows/scorecard.yml).
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Scores the repository against the public OpenSSF Scorecard rubric
+# (branch protection, dependency pinning, token permissions, SAST,
+# signed releases, …). Results are published to the public Scorecard
+# API and uploaded to the repo's code-scanning tab; the README badge
+# points at the live score.
+name: Scorecard
+
+on:
+  branch_protection_rule:
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly, Monday 04:00 UTC
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege default: read-all. The analysis job escalates locally.
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # upload SARIF to code-scanning
+      id-token: write          # publish results + sign the Scorecard badge
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - uses: ossf/scorecard-action@2d1146689b8cda280b9bc96326124645441f03bc # v2.4.4
+        with:
+          results_file: results.sarif
+          results_format: sarif
+          publish_results: true
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: scorecard-results
+          path: results.sarif
+          retention-days: 7
+
+      - uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
+        with:
+          sarif_file: results.sarif

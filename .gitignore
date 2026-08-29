@@ -1,3 +1,15 @@
+# langdev .gitignore — rename to `.gitignore` in each repo.
+
+# Secrets: real env files are runtime-only, never committed.
+.env
+*.env
+!env.example
+
+# Local mount + generated artifacts.
+work/
+sbom.cdx.json
+*.log
+
+# Editor/OS noise.
 .DS_Store
-/.vscode/
-/target
+.vscode/

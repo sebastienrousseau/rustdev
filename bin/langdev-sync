@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+# langdev-sync — vendor the shared common/ core into the current repo.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Usage:
+#   bin/langdev-sync                      # source from $LANGDEV_SOURCE or default
+#   bin/langdev-sync --source ../langdev  # local path
+#   bin/langdev-sync --source https://github.com/sebastienrousseau/langdev.git
+#
+# Copies <source>/common/ over ./common/ so every <language>dev repo stays
+# byte-identical in its shared core. Language-specific files are untouched.
+set -euo pipefail
+
+SOURCE="${LANGDEV_SOURCE:-../langdev}"
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --source) SOURCE="$2"; shift 2 ;;
+    -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "unknown arg: $1" >&2; exit 2 ;;
+  esac
+done
+
+workdir=""
+# Keep cleanup's own status out of the script's exit code: as an EXIT-trap
+# handler its last command decides the exit status on a normal fall-through,
+# and a bare `[ -n "$workdir" ] && …` returns 1 when workdir is unset (the
+# local-path branch), which would spuriously fail an otherwise-successful run.
+cleanup() { [ -n "$workdir" ] && rm -rf "$workdir"; return 0; }
+trap cleanup EXIT
+
+case "$SOURCE" in
+  http*://*|git@*)
+    workdir="$(mktemp -d)"
+    git clone --depth 1 "$SOURCE" "$workdir/langdev" >/dev/null 2>&1
+    src="$workdir/langdev/common"
+    ;;
+  *)
+    src="${SOURCE%/}/common"
+    ;;
+esac
+
+if [ ! -d "$src" ]; then
+  echo "error: no common/ found at: $src" >&2
+  exit 1
+fi
+
+mkdir -p ./common
+# --delete keeps the vendored copy an exact mirror of the source.
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a --delete "$src/" ./common/
+else
+  rm -rf ./common && cp -a "$src" ./common
+fi
+
+echo "synced common/ from: $SOURCE"

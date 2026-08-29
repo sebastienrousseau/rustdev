@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for git. Records argv to $STUB_LOG and simulates the small
+# surface the langdev scripts use: clone, checkout, rev-parse. Behaviour is
+# steered by env vars so a test can drive every branch:
+#   STUB_GIT_BRANCH_FAIL=1   make `clone --branch` fail (exercises fallback)
+#   STUB_GIT_CHECKOUT_RC=N   exit code for `checkout`      (default 0)
+#   STUB_GIT_SHA=<sha>       value printed by `rev-parse`  (default 40x'0')
+{ printf 'git'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+
+args=("$@")
+# Strip a leading `-C <dir>` (bootstrap uses it for checkout/rev-parse).
+if [ "${args[0]:-}" = "-C" ]; then
+  args=("${args[@]:2}")
+fi
+cmd="${args[0]:-}"
+
+case "$cmd" in
+  clone)
+    for a in "${args[@]}"; do
+      if [ "$a" = "--branch" ] && [ "${STUB_GIT_BRANCH_FAIL:-0}" = "1" ]; then
+        exit 1
+      fi
+    done
+    # Destination is the last positional argument.
+    dest="${args[$((${#args[@]} - 1))]}"
+    mkdir -p "$dest/common"
+    printf '# stub common core\n' > "$dest/common/entrypoint.sh"
+    exit 0
+    ;;
+  rev-parse)
+    printf '%s\n' "${STUB_GIT_SHA:-0000000000000000000000000000000000000000}"
+    exit 0
+    ;;
+  checkout)
+    exit "${STUB_GIT_CHECKOUT_RC:-0}"
+    ;;
+  *)
+    exit 0
+    ;;
+esac

@@ -1,420 +1,354 @@
-# RustDev (rustdev)
+<!-- SPDX-License-Identifier: Apache-2.0 OR MIT -->
 
-<!-- markdownlint-disable MD033 MD041 -->
-<img src="https://kura.pro/rustdev/images/logos/rustdev.webp"
-alt="RustDev logo" height="66" align="right" />
-<!-- markdownlint-enable MD033 MD041 -->
+<p align="center">
+  <img src="https://cloudcdn.pro/rustdev/v1/logos/rustdev.svg" alt="rustdev logo" width="128" />
+</p>
 
-An opinionated, secure, Alpine-based Docker container providing a complete Rust development environment with NeoVim configuration. Engineered for safety, efficiency, and developer productivity. **This is not an official Rust project** and is not affiliated with or supported by the Rust Foundation.
+<h1 align="center">rustdev</h1>
 
-<!-- markdownlint-disable MD033 MD041 -->
-<center>
-<!-- markdownlint-enable MD033 MD041 -->
+<p align="center">
+  A portable, disposable Rust development container — a pinned rustup
+  toolchain on the hardened <a href="https://github.com/sebastienrousseau/langdev">langdev</a>
+  core that builds with <b>both</b> Docker and Podman and boots the
+  developer's own dotfiles.
+</p>
 
-[![Made with Alpine Linux][alpine-badge]][08] [![Docker][docker-badge]][03] [![Rust][rust-badge]][01] [![NeoVim][neovim-badge]][04] [![Security][security-badge]][06] [![Build Status][build-badge]][07]
+<p align="center">
+  <a href="https://github.com/sebastienrousseau/rustdev/actions"><img src="https://img.shields.io/github/actions/workflow/status/sebastienrousseau/rustdev/ci.yml?style=for-the-badge&logo=github" alt="Build" /></a>
+  <a href="#license"><img src="https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue?style=for-the-badge" alt="License: Apache-2.0 OR MIT" /></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/sebastienrousseau/rustdev"><img src="https://img.shields.io/ossf-scorecard/github.com/sebastienrousseau/rustdev?style=for-the-badge&label=OpenSSF%20Scorecard&logo=openssf" alt="OpenSSF Scorecard" /></a>
+  <a href="#portability"><img src="https://img.shields.io/badge/engines-docker%20%7C%20podman-1d63ed?style=for-the-badge&logo=docker" alt="Engines: Docker or Podman" /></a>
+  <a href="#portability"><img src="https://img.shields.io/badge/arch-amd64%20%C2%B7%20arm64-555?style=for-the-badge" alt="Architectures: amd64, arm64" /></a>
+</p>
 
-• [Features](#key-features) • [Prerequisites](#prerequisites) • [Installation](#installation) • [Usage](#usage) • [Configuration](#configuration) • [Security](#security) • [Contributing](#contributing)
+---
 
-<!-- markdownlint-disable MD033 MD041 -->
-</center>
-<!-- markdownlint-enable MD033 MD041 -->
+## Contents
 
-## Disclaimer
+**Getting started**
 
-This is an opinionated development environment that reflects specific preferences for tooling, configuration, and workflow. It is:
+- [Quick start](#quick-start) — clone, `make up`, and you are in a dev shell
+- [Why this approach?](#why-this-approach) — the choices that shape the image
 
-- Not an official Rust project
-- Not affiliated with or supported by the Rust Foundation or its contributors
-- Not intended to be a one-size-fits-all solution, this is a personal project
-- Maintained independently and based on [docker-rust][02] and other open-source projects
-- Provided as-is with no warranties (see [Licence](#licence))
+**What you get**
 
-## Overview
+- [What's inside](#whats-inside) — the pinned toolchain, exactly
+- [The developer environment IS your dotfiles](#the-developer-environment-is-your-dotfiles) — no synthetic config, tmux loaded by default
 
-**RustDev** is a containerised Rust development environment that prioritises security, performance, and developer convenience. Built on Alpine Linux for a minimal footprint, it includes a pre-configured NeoVim setup with Rust-specific tooling, intelligent code completion, and Git integration.
+**Operational**
 
-## Key Features
+- [Security model](#security-model) — the container threat model and controls
+- [Portability](#portability) — engines, architectures, host assumptions
+- [When not to use rustdev](#when-not-to-use-rustdev) — limitations, stated plainly
+- [Development](#development) — `make` targets, tests, lint, scan, SBOM, CI
+- [Documentation](#documentation) — community docs and the house style
+- [License](#license)
 
-- **Secure by Design**  
-  - Alpine Linux base with minimal attack surface  
-  - Non-root user operation  
-  - Comprehensive security hardening  
-  - Regular security updates  
-  - Container isolation and resource limits
+---
 
-- **Rust Development Tools**  
-  - Rust 1.84.1 with Cargo  
-  - `rust-analyzer` for intelligent code completion  
-  - Clippy for linting  
-  - Cargo Watch for live reloading  
-  - Cargo Audit for dependency scanning
+## Quick start
 
-- **Enhanced Development Experience**  
-  - NeoVim with LazyVim configuration  
-  - Intelligent code completion  
-  - Syntax highlighting  
-  - Git integration  
-  - Terminal integration  
-  - Fuzzy finding
+`rustdev` is standalone. Clone it, and one command gets you an
+interactive, hardened Rust shell in a fresh container:
 
-- **Developer Convenience**  
-  - Custom shell aliases  
-  - Git workflow optimisation  
-  - Cargo command shortcuts  
-  - Pre-configured development tools  
-  - Comprehensive documentation
-
-## Prerequisites
-
-- Docker 20.10 or newer
-- Docker Compose V2
-- Minimum 2GB RAM (4GB recommended)
-- At least 5GB free disk space
-- Git (for cloning the repository)
-- Terminal with SSH support
-
-## Installation
-
-1. **Clone the repository:**
-
-   ```bash
-   git clone https://github.com/sebastienrousseau/rustdev.git
-   cd rustdev
-   ```
-
-2. **Configure the environment (optional):**
-
-   ```bash
-   # Edit .env with your preferred settings
-   ```
-
-3. **Build and start the development environment:**
-
-   ```bash
-   docker-compose up --build -d
-   ```
-
-4. **Access the container:**
-
-   ```bash
-   docker exec -it rustdev bash
-   ```
-
-## Usage
-
-### Shell Aliases
-
-RustDev provides various productivity-enhancing aliases:
-
-#### Cargo Commands
-
-- `cgb` – Build the project
-- `cgr` – Run the project
-- `cgt` – Run tests
-- `cgc` – Run Clippy
-- `cgf` – Format code
-- `cga` – Add dependency
-- `cgu` – Update dependencies
-- `cgd` – Show dependency tree
-
-#### Git Commands
-
-- `ga` – Stage all changes
-- `gc` – Commit changes
-- `gp` – Push changes
-- `gpl` – Pull changes
-- `gst` – Show status
-- `gco` – Switch branches
-- `gcb` – Create a new branch
-- `glast` – Show the last commit
-
-#### Navigation
-
-- `e` or `v` – Launch NeoVim
-- `l` – List files
-- `t` – System monitor
-- `x` – Exit shell
-
-For a full list of aliases, type:
-
-```bash
-help
+```sh
+git clone https://github.com/sebastienrousseau/rustdev.git
+cd rustdev
+make up                       # build (if needed) + interactive dev shell
 ```
 
-### NeoVim Configuration
+Other everyday commands:
 
-NeoVim is set up to streamline Rust development, including:
-
-- Intelligent code completion (`nvim-cmp`)
-- Fuzzy finding (Telescope)
-- Git integration
-- Terminal integration (Toggleterm)
-- Rust-specific tooling (`rust-analyzer`)
-- Custom key mappings
-
-To open NeoVim:
-
-```bash
-v
+```sh
+make run CMD="cargo test"     # one-shot command in a fresh container
+make trash                    # remove the image + dangling build cache
 ```
 
-**Key mappings:**
+Your code is the **only** bind mount, at `/work`. Everything else is
+ephemeral (read-only rootfs + tmpfs), so a container is truly
+disposable. No registry pull and no network are needed on first launch —
+the image is built entirely from the repo you cloned, and the Neovim
+plugin set is baked headless at build time.
 
-- `<C-space>` – Hover actions
-- `<Leader>a` – Code actions
-- `<Leader>ff` – Find files
-- `<Leader>fg` – Live grep
-- `<Leader>fb` – Browse files
+---
 
-### Development Workflow
+## Why this approach?
 
-1. **Create a new Rust project:**
+Most "Rust dev container" setups make one of two trades: a heavyweight,
+root-running image with the kitchen sink, or a bare `rust:alpine` that
+leaves you to reassemble your editor, shell, and tools every time.
+rustdev refuses both. Four choices, in priority order, shape the image:
 
-   ```bash
-   cgn my-project
-   cd my-project
-   ```
+1. **Secure by default, not by opt-in.** The container runs as a
+   non-root `dev` user (UID/GID 1000) with **all Linux capabilities
+   dropped**, `no-new-privileges`, and a **read-only root filesystem**;
+   writable state is confined to explicit `tmpfs` mounts. This is the
+   default `make up` posture, not a hardened variant you have to
+   remember to select. The threat model is [documented](SECURITY.md),
+   not implied.
 
-2. **Edit your code:**
+2. **Ultra-small but complete.** A multi-stage build installs the Rust
+   toolchain into a relocatable prefix and copies **only** that prefix
+   into the runtime image — `build-base` and `curl` never reach the
+   final layer. "Complete" is measured against a real Rust workflow:
+   you can edit, build, test, lint, and audit without reaching outside
+   the container.
 
-   ```bash
-   v src/main.rs
-   ```
+3. **Portable and disposable.** One OCI `Containerfile` builds with
+   Docker, Podman, Buildah, and nerdctl. The `Makefile` auto-detects the
+   engine and adjusts flags (SELinux `:Z` mounts) accordingly. Images
+   are multi-arch (`linux/amd64`, `linux/arm64`). The only bind mount is
+   your project at `/work`, and `make trash` leaves nothing behind.
 
-3. **Build and run:**
+4. **Reliable and reproducible.** Everything is pinned: the Alpine base
+   **by digest**, the Rust toolchain and cargo tools by version, and
+   Neovim plugins via the dotfiles' `lazy-lock.json`. `rustup-init` is
+   **checksum-verified** (musl amd64 + arm64) — there is no `curl | sh`
+   anywhere in the build. Pin `DOTFILES_REF` to a tag or commit and the
+   image is reproducible; the exact dotfiles commit bundled is recorded
+   at `~/.dotfiles.commit`.
 
-   ```bash
-   cgb   # Build project
-   cgr   # Run project
-   ```
+Everything language-agnostic — the entrypoint, dotfiles bootstrap, and
+`Containerfile`/`compose`/`Makefile` shape — is **vendored** from the
+[`langdev`](https://github.com/sebastienrousseau/langdev) core under
+`common/` and refreshed with `make sync-common`. rustdev is therefore a
+complete, auditable unit on its own, with no base-image drift and no
+supply-chain hop at build time.
 
-4. **Typical cycle:**
+---
 
-   ```bash
-   cgf   # Format code
-   cgc   # Run Clippy
-   cgt   # Run tests
-   ```
+## What's inside
 
-## Configuration
+Everything is pinned. Bump the toolchain inputs together (see the build
+args at the top of the `Containerfile`).
 
-### Environment Variables
+| Component | Version | How it's pinned |
+|---|---|---|
+| Alpine base | `3.22` | by digest `sha256:14358309…695dce` |
+| Rust (stable) | `1.98.0` | `RUST_VERSION` build arg |
+| rustup | `1.29.0` | `RUSTUP_VERSION`; `rustup-init` sha256-verified (musl amd64 + arm64) |
+| `cargo-audit` | `0.22.2` | `cargo install --locked --version` |
+| `cargo-watch` | `8.5.3` | `cargo install --locked --version` |
+| rust-analyzer / clippy / rust-src | (with `1.98.0`) | rustup components |
+| Dotfiles (shell/tmux/nvim) | latest | `DOTFILES_REF` build arg (pin a tag/commit) |
+| Neovim plugins | — | your dotfiles' `nvim/lazy-lock.json` (baked headless at build) |
 
-Customise your environment in `.env`:
+The toolchain is built in a separate `toolchain` stage; only its
+relocatable prefix (`/opt/langdev/toolchain`) is copied into the final
+image, so `build-base` and `curl` never reach the runtime layer.
+`rust-analyzer`, `cargo`, `clippy`, `cargo-audit`, and `cargo-watch` are
+all on `PATH`.
 
-```bash
-RUST_VERSION=1.84.1        # Rust toolchain version
-USERNAME=rustdev           # Container username
-USER_HOME=/home/rustdev    # Home directory path
-CARGO_HOME=/usr/local/cargo
-RUSTUP_HOME=/usr/local/rustup
+Rust-specific login-shell setup lives in `dotfiles.d/rust.sh`, installed
+to `/etc/profile.d/rust.sh` (root-owned, `0644`) so every login shell
+sources it without touching your pristine dotfiles. It exports
+`CARGO_HOME` and `RUSTUP_HOME`, prepends `$CARGO_HOME/bin` to `PATH`
+(guarding against duplicates so it is safe to re-source), and adds these
+aliases — **only** for tools actually present in the image:
+
+| Alias | Expands to |
+|---|---|
+| `cb` | `cargo build` |
+| `cr` | `cargo run` |
+| `ct` | `cargo test` |
+| `cc` | `cargo check` |
+| `ccl` | `cargo clippy --all-targets --all-features` |
+| `cw` | `cargo watch -x check` |
+| `caudit` | `cargo audit` |
+
+It does **not** propagate any host `PATH`.
+
+---
+
+## The developer environment IS your dotfiles
+
+rustdev does **not** ship a synthetic shell or editor config. At build
+time the image clones the user's chezmoi-managed
+[dotfiles repo](https://github.com/sebastienrousseau/dotfiles) and runs
+`chezmoi apply`, so the container has the *real* bashrc, aliases, tmux
+config, and Neovim setup — **always the latest** by default. Pin
+`DOTFILES_REF` to a tag or commit for a reproducible build; the exact
+commit bundled is recorded at `~/.dotfiles.commit`.
+
+- **tmux is installed and loaded by default.** An interactive shell
+  attaches to (or creates) a persistent `langdev` tmux session, so panes
+  and windows survive detach. Opt out with `LANGDEV_NO_TMUX=1`.
+- **The dotfiles' Neovim config is authoritative.** rustdev drops
+  exactly one `nvim/plugins.local/lang.lua` spec into the config's
+  `plugins.local/` directory (auto-imported via that convention). It is
+  an ordinary lazy.nvim spec, so it composes with the rest of your setup
+  untouched.
+- **LSP via `rustaceanvim`.** Rust is wired through
+  `mrcjkb/rustaceanvim` (the maintained successor to the archived
+  `rust-tools.nvim`), pointed at the build-time `rust-analyzer` on
+  `PATH` — no Mason, no network on first launch. Treesitter grammars
+  `rust` and `ron` are added on top of your set.
+- **Baked, offline-ready.** The full plugin set (yours plus this spec)
+  is baked headless at build time from your dotfiles'
+  `nvim/lazy-lock.json`, so the container is reproducible and needs no
+  network on first launch.
+
+---
+
+## Security model
+
+The full threat model and the private disclosure process are in
+[`SECURITY.md`](SECURITY.md). Enforced by `compose.yaml` and mirrored in
+`make run` / `make shell`:
+
+- **Non-root.** Runs as `dev` (UID/GID 1000); no `sudo`, no setuid
+  binaries in the image (setuid/setgid bits stripped at build; `/tmp` is
+  `1777`, sticky — not `777`).
+- **Least privilege at runtime.** `cap_drop: [ALL]`,
+  `security_opt: [no-new-privileges:true]`, `read_only: true` (with
+  `tmpfs` for `/tmp`, `/home/dev/.cache`, and `/home/dev/.local/state`),
+  and `init: true` (tini as PID 1 for clean signal handling).
+- **Resource limits.** `pids_limit: 512`, `mem_limit: 2g`, `cpus: 2.0`.
+- **Pinned, checksummed inputs.** Base image pinned **by digest**;
+  `rustup-init` checksum-verified; cargo tools installed `--locked` and
+  version-pinned — never `curl | sh`.
+- **No committed secrets.** No `.env` is committed or `COPY`'d into an
+  image — secrets are runtime-only via compose `env_file`. `.env` is
+  gitignored **and** dockerignored. rustdev needs no secrets to build or
+  run.
+- **One bind mount.** The only bind mount is your project directory at
+  `/work`.
+- **CI gates every change.** `hadolint`, `shellcheck`, a Docker build,
+  and a Trivy image scan (fail on HIGH/CRITICAL) run on every push and
+  pull request; a CycloneDX SBOM is uploaded as an artifact.
+
+Report a vulnerability privately — see [`SECURITY.md`](SECURITY.md). Do
+not open a public issue.
+
+---
+
+## Portability
+
+- **One `Containerfile` (OCI).** `docker build`, `podman build`,
+  `buildah`, and `nerdctl` all work from the same file.
+- **Engine autodetection.** The `Makefile` detects `docker` or `podman`
+  and adjusts flags (SELinux `:Z` mounts) accordingly.
+- **Multi-arch.** Images build for `linux/amd64` and `linux/arm64` via
+  `docker buildx` / `podman --platform`.
+- **No host assumptions.** The only bind mount is your project directory
+  at `/work`; there are no host-path assumptions beyond it.
+
+---
+
+## When not to use rustdev
+
+Stated plainly, so you can rule it out fast:
+
+- **You need a production runtime image.** rustdev builds a *development*
+  environment — editor, LSP, test and audit tooling, a shell. It is
+  deliberately not a minimal production artifact; ship a separate,
+  slimmer image (or a `FROM scratch` static binary) for that.
+- **You do not use chezmoi-managed dotfiles.** The environment *is* the
+  user's dotfiles. Without a chezmoi dotfiles repo you lose the main
+  point, though the hardening and Rust toolchain layers still stand on
+  their own.
+- **You need a nightly toolchain or extra targets by default.** rustdev
+  ships one pinned stable toolchain with a minimal component set. Extra
+  targets, components, or a nightly channel are deliberate additions,
+  not the default.
+- **You need GPU passthrough or host-device access.** The default
+  posture drops all capabilities and forbids privilege escalation.
+  Workloads that need device access require deliberate, documented
+  relaxations that run against the grain of the design.
+- **You are on a platform without Docker or Podman.** There is no
+  VM-less fallback; rustdev targets an OCI engine on Linux, macOS, or
+  Windows/WSL2.
+
+---
+
+## Development
+
+The `Makefile` exposes the full lifecycle and auto-detects `docker` or
+`podman` (adding `:Z` SELinux mount flags for Podman), so the same
+commands work with either engine:
+
+```sh
+make up          # build + interactive dev shell (alias: make shell)
+make run CMD=…   # one-shot command in a fresh container
+make build       # build the image for the host arch
+make buildx      # multi-arch build (linux/amd64, linux/arm64)
+make lint        # hadolint the Containerfile + shellcheck the scripts
+make scan        # Trivy vulnerability scan (fail on HIGH/CRITICAL)
+make sbom        # CycloneDX SBOM via syft
+make trash       # remove the image and dangling build cache
+make sync-common # refresh common/ from the langdev source
 ```
 
-### Docker Configuration
+### Tests and coverage
 
-In `docker-compose.yml`, you can adjust the container settings:
+The language-agnostic shell core — `common/bootstrap-dotfiles.sh` and
+`common/entrypoint.sh` — is vendored verbatim from the
+[`langdev`](https://github.com/sebastienrousseau/langdev) core and
+refreshed with `make sync-common`. That core is unit-tested with
+[bats-core](https://github.com/bats-core/bats-core) under
+[kcov](https://github.com/SimonKagstrom/kcov) in the langdev repo, whose
+`make test` / `make coverage` gate **fails below 95 % line coverage**.
+The tests are hermetic — `git`, `chezmoi`, `nvim`, `tmux`, and `rsync`
+are test doubles on a closed `PATH`, so no network or container is
+needed. The suite and its coverage gate are documented in
+[langdev's `test/README.md`](https://github.com/sebastienrousseau/langdev/blob/main/test/README.md).
 
-```yaml
-services:
-  rust-app:
-    # Name your final image if you like
-    image: rustdev
-    container_name: rustdev
+### CI and security workflows
 
-    # Use the Dockerfile in the current directory
-    build:
-      context: .
-      # Pass build-time args from the .env (substitution):
-      args:
-        RUST_VERSION: "${RUST_VERSION}"
-        USERNAME: "${USERNAME}"
-        USER_HOME: "${USER_HOME}"
+This repo's [`.github/workflows/ci.yml`](.github/workflows/ci.yml) gates
+every push and pull request with `hadolint`, `shellcheck`, a Docker
+build, a Trivy image scan (fail on HIGH/CRITICAL), and a CycloneDX SBOM
+artifact. The suite's OpenSSF hardening workflows are maintained in the
+langdev core and provisioned across the suite from
+[`templates/github-workflows/`](https://github.com/sebastienrousseau/langdev/tree/main/templates/github-workflows):
 
-    # Instruct Docker Compose to load environment variables from .env
-    env_file:
-      - .env
+| Workflow | What it gates |
+|---|---|
+| `ci.yml` | shellcheck, hadolint, Docker build, Trivy image scan (fail HIGH/CRITICAL), CycloneDX SBOM |
+| `scorecard.yml` | OpenSSF Scorecard, results published + SARIF to code-scanning |
+| `sast.yml` | ShellCheck + Trivy config + Checkov, SARIF → code-scanning |
+| `dependency-review.yml` | dependency + action changes reviewed on every PR |
 
-    # Drop privileges to user 1000:1000 inside container
-    user: "1000:1000"
+The OpenSSF Best-Practices self-assessment lives in the langdev core's
+[`doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md);
+a maintainer can apply the branch-protection ruleset with langdev's
+[`scripts/set-branch-protection.sh`](https://github.com/sebastienrousseau/langdev/blob/main/scripts/set-branch-protection.sh).
 
-    # Default working directory inside the container
-    working_dir: "/home/rustdev/code"
+Contributions require signed commits and Conventional Commit messages —
+see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-    # Keep STDIN open and allocate a pseudo-TTY (handy for interactive dev)
-    stdin_open: true
-    tty: true
+---
 
-    # Pass environment variables to the container at runtime
-    # referencing the same .env variables
-    environment:
-      RUSTUP_HOME: "${RUSTUP_HOME}"
-      CARGO_HOME: "${CARGO_HOME}"
-      PATH: "${PATH}"
-      RUST_VERSION: "${RUST_VERSION}"
-      USERNAME: "${USERNAME}"
-      USER_HOME: "${USER_HOME}"
+## Documentation
 
-    # Default command to run on container start
-    command: ["/bin/bash", "--login"]
-```
+| Document | What it covers |
+|---|---|
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/test/lint/scan/sbom, signed commits, Conventional Commits. |
+| [`SECURITY.md`](SECURITY.md) | The container threat model and the private disclosure process. |
+| [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) | Community standards and enforcement. |
+| [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides what, and how the maintainer base is meant to grow. |
+| [`SUPPORT.md`](SUPPORT.md) | Where to go for questions, bugs, and feature requests. |
+| [`CHANGELOG.md`](CHANGELOG.md) | Notable changes, Keep a Changelog format. |
+| [langdev `doc/CII-BEST-PRACTICES.md`](https://github.com/sebastienrousseau/langdev/blob/main/doc/CII-BEST-PRACTICES.md) | OpenSSF Best-Practices self-assessment for the suite. |
 
-### NeoVim Configuration
+rustdev follows the langdev suite's house style — see
+[`STYLE.md`](https://github.com/sebastienrousseau/langdev/blob/main/STYLE.md)
+in the `langdev` core.
 
-Modify files in `plugins/` to change or add plugins:
+---
 
-- `coding.lua` – Code completion and LSP settings
+## License
 
-  ```lua
-  {
-    "hrsh7th/nvim-cmp",
-    opts = {
-      -- Adjust completion behaviour
-    }
-  }
-  ```
+Licensed under either of
 
-- `telescope.lua` – Fuzzy finder configuration
+- Apache License, Version 2.0 ([`LICENSE-APACHE`](LICENSE-APACHE))
+- MIT license ([`LICENSE-MIT`](LICENSE-MIT))
 
-  ```lua
-  {
-    "nvim-telescope/telescope.nvim",
-    opts = {
-      -- Customise finder settings
-    }
-  }
-  ```
+at your option. The suite is dual-licensed `Apache-2.0 OR MIT`; every
+non-vendored file carries an `SPDX-License-Identifier: Apache-2.0 OR MIT`
+header.
 
-- `toggleterm.lua` – Terminal integration
-
-  ```lua
-  {
-    "akinsho/toggleterm.nvim",
-    opts = {
-      -- Configure terminal behaviour
-    }
-  }
-  ```
-
-## Security
-
-RustDev employs robust security measures:
-
-- **Container Security**  
-  - Non-root user operation  
-  - Minimal Alpine Linux base  
-  - Frequent security updates  
-  - Limited attack surface  
-  - Resource limits and isolation
-
-- **Access Control**  
-  - Restricted file permissions  
-  - No sudo access  
-  - Controlled environment variables  
-  - Secure shell configuration
-
-- **Build Security**  
-  - Dependency scanning  
-  - Cargo Audit integration  
-  - Secure dependency management  
-  - Version pinning
-
-- **Runtime Security**  
-  - Process isolation  
-  - Memory restrictions  
-  - CPU constraints  
-  - Network limitations
-
-## Troubleshooting
-
-Common issues and how to resolve them:
-
-1. **Container fails to build**  
-
-   ```bash
-   # Clear Docker build cache
-   docker builder prune
-
-   # Rebuild without cache
-   docker compose build --no-cache
-   ```
-
-2. **Permission issues**
-
-   ```bash
-   # Fix ownership
-   chown -R 1000:1000 .
-
-   # Adjust permissions
-   chmod -R 755 .
-   ```
-
-3. **Rust toolchain problems**
-
-   ```bash
-   # Update Rust
-   rustup update
-
-   # Validate installations
-   rustc --version
-   cargo --version
-   ```
-
-## Development Roadmap
-
-Future features and enhancements include:
-
-- [ ] Automated testing suite
-- [ ] CI/CD pipeline templates
-- [ ] Deployment scripts for cloud platforms
-- [ ] Enhanced security features
-- [ ] Further development tools integration
-- [ ] Increase architecture support
-- [ ] Kill switch for container
-- [ ] Language Server Protocol (LSP) improvements
-- [ ] Multi-language support
-- [ ] Performance optimisations
-
-## Contributing
-
-We value contributions! To contribute:
-
-1. Fork this repository
-2. Create a feature branch
-3. Implement your changes
-4. Run all tests
-5. Open a pull request
-
-For major changes:
-
-1. Open an issue first
-2. Discuss proposed modifications
-3. Implement changes
-4. Update documentation
-
-## Licence
-
-This project is licensed under the MIT Licence. See the [LICENCE](LICENCE) file for details.
-
-## Acknowledgements
-
-- [Rust](https://www.rust-lang.org) – The Rust Programming Language
-- [Alpine Linux](https://alpinelinux.org) – Security-focused Linux distribution
-- [Docker](https://www.docker.com) – Container platform
-- [NeoVim](https://neovim.io) – Hyperext    ension Vim-based editor
-- [LazyVim](https://www.lazyvim.org) – NeoVim configuration framework
-- [docker-rust](https://github.com/rust-lang/docker-rust) – Official Rust Docker images
-
-[alpine-badge]: https://img.shields.io/badge/Alpine_Linux-0D597F?style=for-the-badge&logo=alpine-linux&logoColor=white
-[docker-badge]: https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white
-[rust-badge]: https://img.shields.io/badge/Rust-000000?style=for-the-badge&logo=rust&logoColor=white
-[neovim-badge]: https://img.shields.io/badge/NeoVim-57A143?style=for-the-badge&logo=neovim&logoColor=white
-[security-badge]: https://img.shields.io/badge/Security-Hardened-success?style=for-the-badge
-[build-badge]: https://img.shields.io/badge/Build-Passing-success?style=for-the-badge
-
-[01]: https://www.rust-lang.org
-[02]: https://github.com/rust-lang/docker-rust
-[03]: https://www.docker.com
-[04]: https://neovim.io
-[06]: #security
-[07]: #contributing
-[08]: https://alpinelinux.org
+Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the Apache-2.0
+license, shall be dual licensed as above, without any additional terms
+or conditions.

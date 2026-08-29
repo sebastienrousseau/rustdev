@@ -1,0 +1,48 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+
+name: Feature request
+description: Suggest a new capability, a new <language>dev image, or an improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What are you trying to do, and where does langdev fall short today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: The behaviour, flag, template change, or new image you'd like. Sketch it if you can.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Which part of the suite?
+      options:
+        - Shared core (common/) or templates
+        - A new <language>dev image
+        - An existing image (rustdev / pythondev / llamadev)
+        - CI / tooling
+        - Docs
+        - Cross-cutting / not sure
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and discussions for a similar request.
+          required: true
+        - label: This keeps the default security posture (non-root, cap-drop, read-only, pinned inputs) intact, or explains why a relaxation is justified.
+          required: true

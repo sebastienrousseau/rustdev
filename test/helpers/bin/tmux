@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for tmux. Records argv and exits 0. The entrypoint only needs
+# `command -v tmux` to succeed; the actual `tmux new-session` is intercepted
+# by the LANGDEV_TEST exec shim, so this body is a safety net.
+{ printf 'tmux'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+exit 0
