@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# Deploy documentation and single-page landing site to GitHub Pages using SSG.
+name: pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "content/**"
+      - "_layouts/**"
+      - "assets/**"
+      - "ssg.toml"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache SSG binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/ssg
+          key: ${{ runner.os }}-ssg-v0.0.57
+
+      - name: Install SSG
+        run: |
+          if ! command -v ssg >/dev/null 2>&1; then
+            cargo install ssg --version 0.0.57 || cargo install ssg
+          fi
+
+      - name: Build static site with SSG
+        run: |
+          mkdir -p public
+          ssg build -f ssg.toml || ssg build
+          cp -r assets public/ || true
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "public"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

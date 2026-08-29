@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{language}}" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}" />
+
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               base-uri 'none';
+               object-src 'none';
+               script-src 'self' 'unsafe-inline';
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data: https:;
+               font-src 'self';
+               connect-src 'self';
+               manifest-src 'self';"
+    />
+
+    <meta property="og:title" content="{{title}}" />
+    <meta property="og:description" content="{{description}}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{permalink}}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{title}}" />
+    <meta name="twitter:description" content="{{description}}" />
+
+    <link rel="canonical" href="{{permalink}}" />
+    <link rel="icon" href="{{site_path}}favicon.ico" sizes="any" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#090a0f" />
+
+    <link rel="stylesheet" href="{{site_path}}styles.css" />
+    <script src="{{site_path}}theme-init.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    {{> header}}
+    <main id="main">
+      {{#block "main"}}{{/block}}
+    </main>
+    {{> footer}}
+    <script src="{{site_path}}main.js" defer></script>
+  </body>
+</html>

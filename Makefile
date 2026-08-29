@@ -110,3 +110,11 @@ coverage: test ## Alias for `test`; the HTML report lands in coverage/
 .PHONY: sync-common
 sync-common: ## Refresh common/ from the langdev source (LANGDEV=path-or-url)
 	@./bin/langdev-sync $(if $(LANGDEV),--source "$(LANGDEV)",)
+
+.PHONY: site
+site: ## Build static documentation and landing site with SSG
+	@command -v ssg >/dev/null 2>&1 && ssg build -f ssg.toml || echo "SSG not installed. Run: cargo install ssg"
+
+.PHONY: serve
+serve: site ## Serve static documentation locally on port 8000
+	@command -v ssg >/dev/null 2>&1 && ssg serve -f ssg.toml || python3 -m http.server 8000 -d public

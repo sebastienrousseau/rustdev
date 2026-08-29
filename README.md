@@ -75,7 +75,7 @@ make trash       # removes container image and build cache cleanly
 | [**`rustdev`**](https://github.com/sebastienrousseau/rustdev) | Rust 1.85+ | `rustup`, `rust-analyzer`, `clippy`, `cargo-audit`, `sccache` | `v0.0.4` |
 | [**`godev`**](https://github.com/sebastienrousseau/godev) | Go 1.24+ | `gopls`, `golangci-lint`, `delve`, Go toolchain | `v0.0.4` |
 | [**`javadev`**](https://github.com/sebastienrousseau/javadev) | Java 21+ | OpenJDK 21, Maven, Gradle, JDTLS | `v0.0.4` |
-| [**`kotlindev`**](https://github.com/sebastienrousseau/kotlindev) | Kotlin 2.1+ | `kotlinc`, OpenJDK 21, Gradle, Maven, KLS | `v0.0.1` |
+| [**`kotlindev`**](https://github.com/sebastienrousseau/kotlindev) | Kotlin 2.1+ | `kotlinc`, OpenJDK 21, Gradle, Maven, KLS | `v0.0.4` |
 | [**`swiftdev`**](https://github.com/sebastienrousseau/swiftdev) | Swift 6.0+ | Swift toolchain, SourceKit-LSP, `swift-format` | `v0.0.4` |
 
 ---
