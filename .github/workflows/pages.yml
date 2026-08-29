@@ -50,11 +50,15 @@ jobs:
       - name: Build static site with SSG
         run: |
           cd website
-          mkdir -p public/assets
           ssg build -f ssg.toml || ssg build
+          mkdir -p public/assets
           cp -r _layouts/*.css _layouts/*.js _layouts/*.ico public/ 2>/dev/null || true
           cp -r ../assets/* public/assets/ 2>/dev/null || true
           cp -r assets/* public/assets/ 2>/dev/null || true
+          cp -f ../assets/logo.svg public/assets/logo.svg 2>/dev/null || true
+          cp -f ../assets/logo.svg public/logo.svg 2>/dev/null || true
+          cp -f assets/logo.svg public/assets/logo.svg 2>/dev/null || true
+          cp -f assets/logo.svg public/logo.svg 2>/dev/null || true
           cp _layouts/favicon.ico public/ 2>/dev/null || true
 
       - name: Setup Pages
