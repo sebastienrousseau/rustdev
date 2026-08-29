@@ -13,22 +13,41 @@
       <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/{{name}}" target="_blank" rel="noopener">Star on GitHub</a>
     </div>
 
-    <!-- Realistic Animated Terminal IDE & MCP Session -->
-    <figure class="mcp-term">
-      <figcaption class="mcp-term-bar">
-        <span class="mcp-term-dot dot-red" aria-hidden="true"></span>
-        <span class="mcp-term-dot dot-yellow" aria-hidden="true"></span>
-        <span class="mcp-term-dot dot-green" aria-hidden="true"></span>
-        <span class="mcp-term-title">Terminal · {{name}} stdio &amp; TMUX IDE</span>
+    <!-- Authentic Code & Terminal IDE Preview -->
+    <figure class="terminal-preview-card">
+      <figcaption class="terminal-header">
+        <div class="window-dots">
+          <span class="dot dot-red" aria-hidden="true"></span>
+          <span class="dot dot-yellow" aria-hidden="true"></span>
+          <span class="dot dot-green" aria-hidden="true"></span>
+        </div>
+        <div class="terminal-tab-bar">
+          <span class="tab-item active-tab font-mono">src/lib.rs</span>
+          <span class="tab-item font-mono">terminal</span>
+        </div>
+        <div class="terminal-actions">
+          <span class="badge-status font-mono">● Rust 1.85 Edition 2024</span>
+        </div>
       </figcaption>
-      <pre class="mcp-term-body"><code><span class="mcp-tl mcp-tl-cmd mcp-tl-typed mcp-tl-t1"><span class="mcp-tl-ps" aria-hidden="true">$ </span>make up</span>
-<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f2">[OK] rustdev ready &lt; 500ms · rustc 1.85, rust-analyzer, sccache active</span>
-<span class="mcp-tl mcp-tl-cmd mcp-tl-typed mcp-tl-t3"><span class="mcp-tl-ps" aria-hidden="true">$ </span>claude mcp add {{name}} -- docker exec -i {{name}} /usr/local/bin/mcp-server</span>
-<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f4">{{name}}-mcp · connected (stdio JSON-RPC 2.0)</span>
-<span class="mcp-tl mcp-tl-ask mcp-tl-typed mcp-tl-t5"><span class="mcp-tl-ps" aria-hidden="true">&gt; </span>Run cargo clippy --all-targets and cargo audit.</span>
-<span class="mcp-tl mcp-tl-out mcp-tl-fade mcp-tl-f6">dispatched: cargo clippy -- -D warnings &amp;&amp; cargo audit</span>
-<span class="mcp-tl mcp-tl-ok mcp-tl-fade mcp-tl-f7">✓ 0 warnings · 0 vulnerabilities · 100% hermetic build</span>
-<span class="mcp-tl mcp-tl-caret" aria-hidden="true"></span></code></pre>
+      <div class="terminal-editor-pane">
+        <pre class="editor-code font-mono"><code><span class="code-comment">// src/lib.rs · Rust 1.85 Edition 2024 · Async Stdio Protocol Server</span>
+<span class="code-kw">pub async fn</span> <span class="code-fn">process_stream</span>&lt;S&gt;(<span class="code-kw">mut</span> stream: S) -&gt; <span class="code-type">Result</span>&lt;<span class="code-type">Metrics</span>, <span class="code-type">Error</span>&gt;
+<span class="code-kw">where</span>
+    S: <span class="code-type">Stream</span>&lt;<span class="code-type">Item</span> = <span class="code-type">Event</span>&gt; + <span class="code-type">Unpin</span>,
+{
+    <span class="code-kw">let mut</span> metrics = <span class="code-type">Metrics</span>::<span class="code-fn">default</span>();
+    <span class="code-kw">while let</span> <span class="code-type">Some</span>(event) = stream.<span class="code-fn">next</span>().<span class="code-kw">await</span> {
+        metrics.<span class="code-fn">record</span>(event.<span class="code-fn">process</span>().<span class="code-kw">await</span>?);
+    }
+    <span class="code-type">Ok</span>(metrics)
+}</code></pre>
+      </div>
+      <div class="terminal-cli-pane font-mono">
+        <div class="cli-line"><span class="mcp-tl-ps">$ </span>cargo test --all-targets &amp;&amp; cargo clippy -- -D warnings</div>
+        <div class="cli-out">   Compiling rustdev-app v0.0.4 (/work) · 12 tests passed in 0.28s</div>
+        <div class="cli-line"><span class="mcp-tl-ask">&gt; </span>Claude MCP: Dispatch hermetic tool call in ephemeral worktree</div>
+        <div class="cli-out cli-ok">✓ 100% tests passed · 0 clippy warnings · sccache 100% hit rate · 0 vulnerabilities</div>
+      </div>
     </figure>
   </div>
 </section>
