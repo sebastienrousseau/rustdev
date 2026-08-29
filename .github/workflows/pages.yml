@@ -52,7 +52,10 @@ jobs:
           cd website
           mkdir -p public/assets
           ssg build -f ssg.toml || ssg build
-          cp -r ../assets/* public/assets/ || true
+          cp -r _layouts/*.css _layouts/*.js _layouts/*.ico public/ 2>/dev/null || true
+          cp -r ../assets/* public/assets/ 2>/dev/null || true
+          cp -r assets/* public/assets/ 2>/dev/null || true
+          cp _layouts/favicon.ico public/ 2>/dev/null || true
 
       - name: Setup Pages
         uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
