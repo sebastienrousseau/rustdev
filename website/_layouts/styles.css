@@ -750,3 +750,76 @@ td {
     display: none !important;
   }
 }
+
+/* ---- 4-pane TMUX IDE diagram (#ai-ide) ------------------------------
+   The layout is the point of the section, so it is drawn to the real
+   proportions the container uses (20% / 56% / 24%, and 70/30 down the
+   centre column) rather than described in prose. Built from the theme
+   tokens so it follows the light/dark toggle without a second palette. */
+.ide-layout {
+  display: grid;
+  grid-template-columns: 20fr 56fr 24fr;
+  gap: 0.5rem;
+  margin: 2.5rem auto 0;
+  padding: 0.5rem;
+  max-width: 62rem;
+  min-height: 19rem;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  text-align: left;
+}
+
+.ide-center {
+  display: grid;
+  grid-template-rows: 70fr 30fr;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.ide-pane {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.85rem 1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ide-pane h3 {
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin: 0 0 0.4rem;
+}
+
+.ide-pane p {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+.ide-pane code {
+  font-size: 0.8em;
+  overflow-wrap: anywhere;
+}
+
+.ide-caption {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--fg-subtle);
+}
+
+/* One column on narrow screens: a 20% pane is unreadable on a phone,
+   and the proportions stop meaning anything once they are that small. */
+@media (max-width: 48rem) {
+  .ide-layout {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .ide-center {
+    grid-template-rows: auto auto;
+  }
+}
