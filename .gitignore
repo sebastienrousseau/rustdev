@@ -13,4 +13,5 @@ sbom.cdx.json
 # Editor/OS noise.
 .DS_Store
 .vscode/
-public/
+
+website/public/

@@ -1,12 +1,12 @@
 ---
 layout: index
-title: rustdev — Portable, Hardened Rust 1.85+ AI Developer Container
-name: rustdev
-headline: Hardened Rust 1.85+ Development Container for AI Agents
-lead: Fast, hermetic Rust container preloaded with rustup, rust-analyzer, clippy, cargo-audit, sccache, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server.
-permalink: /
-language: en-GB
-date: 2026-08-29
+title: "rustdev — Portable, Hardened Rust 1.85+ AI Developer Container"
+name: "rustdev"
+headline: "Hardened Rust 1.85+ Development Container for AI Agents"
+lead: "Fast, hermetic Rust container preloaded with rustup, rust-analyzer, clippy, cargo-audit, sccache, 4-pane TMUX IDE, and stdio Model Context Protocol (MCP) server."
+permalink: "/"
+language: "en-GB"
+date: "2026-08-29"
 ---
 
 <section id="overview" class="section">

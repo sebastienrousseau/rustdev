@@ -113,8 +113,8 @@ sync-common: ## Refresh common/ from the langdev source (LANGDEV=path-or-url)
 
 .PHONY: site
 site: ## Build static documentation and landing site with SSG
-	@command -v ssg >/dev/null 2>&1 && ssg build -f ssg.toml || echo "SSG not installed. Run: cargo install ssg"
+	@command -v ssg >/dev/null 2>&1 && (cd website && ssg build -f ssg.toml) || echo "SSG not installed. Run: cargo install ssg"
 
 .PHONY: serve
 serve: site ## Serve static documentation locally on port 8000
-	@command -v ssg >/dev/null 2>&1 && ssg serve -f ssg.toml || python3 -m http.server 8000 -d public
+	@command -v ssg >/dev/null 2>&1 && (cd website && ssg serve -f ssg.toml) || python3 -m http.server 8000 -d website/public
