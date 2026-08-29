@@ -169,7 +169,12 @@ body {
   text-decoration: none;
   font-size: 0.9375rem;
   font-weight: 600;
-  padding: 0.5rem 0.25rem;
+  padding: 0.5rem 0.5rem;
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.2s;
 }
 
