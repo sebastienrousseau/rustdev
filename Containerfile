@@ -153,13 +153,18 @@ RUN addgroup -g "${USER_GID}" "${USERNAME}" \
 # baked nvim plugin set. One COPY captures everything chezmoi wrote.
 COPY --from=env-build --chown=${USER_UID}:${USER_GID} /home/${USERNAME} /home/${USERNAME}
 
-# Entrypoint & IDE tooling (tmux-loading, strict-mode).
+# Entrypoint & IDE tooling (tmux-loading, strict-mode, AI & MCP).
 COPY common/entrypoint.sh /usr/local/bin/langdev-entrypoint
 COPY common/tmux-ide.sh /usr/local/bin/tmux-ide
 COPY common/muxtree.sh /usr/local/bin/muxtree
+COPY common/doctor.sh /usr/local/bin/langdev-doctor
+COPY common/mcp-server.sh /usr/local/bin/mcp-server
+COPY common/ai-pack.sh /usr/local/bin/ai-pack
+COPY common/mcp.json /etc/langdev-mcp.json
 COPY common/tmux.conf /etc/tmux.conf
 RUN chmod 0755 /usr/local/bin/langdev-entrypoint /usr/local/bin/tmux-ide /usr/local/bin/muxtree \
- && chmod 0644 /etc/tmux.conf \
+               /usr/local/bin/langdev-doctor /usr/local/bin/mcp-server /usr/local/bin/ai-pack \
+ && chmod 0644 /etc/tmux.conf /etc/langdev-mcp.json \
  && mkdir -p /usr/local/lib/langdev
 
 # --- Hardening ---------------------------------------------------------------

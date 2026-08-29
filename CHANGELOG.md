@@ -9,6 +9,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-08-29
+
+### Added
+
+- **Model Context Protocol (MCP) Server Suite.**
+  - Added `common/mcp-server.sh` implementing JSON-RPC 2.0 stdio transport exposing workspace tools (`list_files`, `read_file`, `git_status`, `git_diff`, `run_tests`, `run_command`) to AI coding agents.
+  - Added `common/mcp.json` configuration template for Claude Code, Cursor, and Aider.
+- **AI Context Packing (`ai-pack`).**
+  - Added `common/ai-pack.sh` for fast, token-efficient XML and Markdown codebase bundling respecting `.gitignore`.
+- **Local LLM Routing.**
+  - Added automatic resolution for local Ollama instances (`http://host.containers.internal:11434`).
+- **Bats Unit Tests.**
+  - Added `test/mcp.bats` and `test/ai-pack.bats`.
+
 ## [0.0.2] - 2026-08-29
 
 ### Added

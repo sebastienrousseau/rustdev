@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "langdev": {
+      "command": "/usr/local/bin/mcp-server",
+      "args": []
+    }
+  }
+}
