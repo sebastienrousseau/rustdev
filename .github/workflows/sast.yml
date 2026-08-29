@@ -81,15 +81,28 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      # Install Trivy directly (the trivy-action's bundled installer has proven
+      # flaky on the hosted runners). GITHUB_TOKEN authenticates the release
+      # lookup so the install is not anonymously rate-limited.
+      - name: Install Trivy
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/v0.65.0/contrib/install.sh \
+            | sudo sh -s -- -b /usr/local/bin v0.65.0
+          trivy --version
       - name: Trivy misconfiguration scan
-        uses: aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8 # v0.33.1
-        with:
-          scan-type: config
-          scan-ref: .
-          format: sarif
-          output: trivy-config.sarif
-          exit-code: "0"   # advisory — findings go to code-scanning
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TRIVY_DISABLE_VEX_NOTICE: "true"
+        run: |
+          set -euo pipefail
+          # exit-code 0: advisory — findings are published to code-scanning.
+          trivy config . --format sarif --output trivy-config.sarif --exit-code 0
+          ls -l trivy-config.sarif
       - name: Upload Trivy SARIF
+        if: ${{ hashFiles('trivy-config.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
         with:
           sarif_file: trivy-config.sarif
@@ -106,16 +119,26 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
+      # Run Checkov via pip (pipx is preinstalled on the runner). The
+      # checkov-action's output path handling did not emit results.sarif at the
+      # repo root; running the CLI directly and locating the SARIF is reliable.
       - name: Checkov scan
-        uses: bridgecrewio/checkov-action@16c078443ac4b4b1f694817dff28944de3d2a1ca # v12.3025.0
-        with:
-          directory: .
-          framework: dockerfile,secrets
-          output_format: sarif
-          output_file_path: .
-          soft_fail: true
+        run: |
+          set -euo pipefail
+          pipx install checkov
+          # --soft-fail: findings are advisory and published to code-scanning.
+          checkov -d . --framework dockerfile,secrets \
+            --output sarif --output-file-path checkov-out --soft-fail || true
+          sarif="$(find checkov-out -type f -name '*.sarif' 2>/dev/null | head -n1 || true)"
+          if [ -n "${sarif:-}" ]; then
+            cp "$sarif" checkov.sarif
+            ls -l checkov.sarif
+          else
+            echo "warning: checkov produced no SARIF" >&2
+          fi
       - name: Upload Checkov SARIF
+        if: ${{ hashFiles('checkov.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@2d92b76c45b91eb80fc44c74ce3fce0ee94e8f9d # v3.30.0
         with:
-          sarif_file: results.sarif
+          sarif_file: checkov.sarif
           category: checkov

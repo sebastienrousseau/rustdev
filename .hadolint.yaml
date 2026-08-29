@@ -1,0 +1,9 @@
+# hadolint configuration for the langdev suite.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# DL4006 / SC2015 are ignored deliberately: the Containerfile uses intentional
+# best-effort pipelines (`... | tail -n 5 || true`) and short-circuit chains
+# (`chmod ... && find ... || true`) whose behaviour is correct as written.
+ignored:
+  - DL4006
+  - SC2015

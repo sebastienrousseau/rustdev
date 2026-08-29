@@ -59,8 +59,19 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - name: Install bats + kcov
-        run: sudo apt-get update && sudo apt-get install -y bats kcov
+      - name: Install bats + build kcov from source
+        # kcov is not in the ubuntu-24.04 apt repositories, so build it from
+        # source. bats itself ships in apt.
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y bats binutils-dev libcurl4-openssl-dev \
+            libdw-dev libiberty-dev zlib1g-dev libssl-dev cmake g++ git
+          git clone --depth 1 https://github.com/SimonKagstrom/kcov.git "$RUNNER_TEMP/kcov"
+          cmake -S "$RUNNER_TEMP/kcov" -B "$RUNNER_TEMP/kcov/build" -DCMAKE_BUILD_TYPE=Release
+          cmake --build "$RUNNER_TEMP/kcov/build" -j"$(nproc)"
+          sudo cmake --install "$RUNNER_TEMP/kcov/build"
+          kcov --version
       - name: Run tests under kcov and enforce the coverage floor
         run: ./test/run.sh
         env:

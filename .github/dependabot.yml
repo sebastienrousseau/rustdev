@@ -46,8 +46,7 @@ updates:
 
   # ── Container base images (Containerfile templates) ─────────────
   - package-ecosystem: docker
-    directories:
-      - "/templates"
+    directory: "/"
     schedule:
       interval: weekly
       day: monday
