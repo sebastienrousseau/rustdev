@@ -35,10 +35,10 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@21e8d6411516e885c2c7c5957d34ecfefae14b98 # stable
+        uses: dtolnay/rust-toolchain@4360b52568e2003a75bf9bc1d59f33a8e3fc893c # stable
 
       - name: Cache SSG binary
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.cargo/bin/ssg
           key: ${{ runner.os }}-ssg-v0.0.57
@@ -56,7 +56,7 @@ jobs:
           cp -r assets public/ || true
 
       - name: Setup Pages
-        uses: actions/configure-pages@983d7712d7b0e42eaf82c94ff005ab0ce2384bd8 # v5.0.0
+        uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5.0.0
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
