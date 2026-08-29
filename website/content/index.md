@@ -54,6 +54,95 @@ make mosh</code></pre>
   </div>
 </section>
 
+<section id="features" class="section">
+  <div class="container text-center">
+    <h2 class="section-title">Core Developer Capabilities</h2>
+    <p class="section-desc">A terminal-first Rust 1.85+ environment with the
+      modern CLI tooling already wired up.</p>
+    <div class="grid-2x2">
+      <div class="card">
+        <h3>OSC 52 Universal Clipboard</h3>
+        <p>Copy from Neovim or TMUX straight to your local clipboard over
+          SSH, WebTTY, or Mosh — no X11 forwarding, no helper daemon.</p>
+      </div>
+      <div class="card">
+        <h3>Floating TUI Modals</h3>
+        <p><code>Prefix + g</code> opens Lazygit and <code>Prefix + d</code>
+          opens Lazydocker as floating popups over your work, then
+          disappear.</p>
+      </div>
+      <div class="card">
+        <h3>Pre-Configured Modern CLI Suite</h3>
+        <p>ripgrep, fd, bat, eza, fzf, jq, curl, git and zsh with
+          autosuggestions and syntax highlighting, configured on first
+          boot.</p>
+      </div>
+      <div class="card">
+        <h3>Deterministic Reproducibility</h3>
+        <p>Pinned tool versions, an immutable root filesystem, and
+          hermetic builds verified by the CI test suite.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="ai-ide" class="section">
+  <div class="container text-center">
+    <h2 class="section-title">AI Coding Agent Architecture</h2>
+    <p class="section-desc">Press <code>Prefix + i</code> for a four-pane
+      TMUX workspace: explorer, editor, shell, and a dedicated AI agent
+      terminal, laid out in the proportions below.</p>
+    <div class="ide-layout">
+      <div class="ide-pane ide-explorer">
+        <h3>Left Panel (20% W)</h3>
+        <p>Intelligent project explorer (<code>langdev-explorer</code>, <code>yazi</code>) with visual Git branch status.</p>
+      </div>
+      <div class="ide-center">
+        <div class="ide-pane ide-editor">
+          <h3>Center-Top (56% W, 70% H)</h3>
+          <p>Editor pane loaded with Neovim and <code>rust-analyzer</code>.</p>
+        </div>
+        <div class="ide-pane ide-terminal">
+          <h3>Center-Bottom (56% W, 30% H)</h3>
+          <p>Integrated bash terminal with Cargo toolchain on PATH.</p>
+        </div>
+      </div>
+      <div class="ide-pane ide-agent">
+        <h3>Right Panel (24% W)</h3>
+        <p>Dedicated AI Agent terminal (Claude Code, Agy, Aider, Ollama).</p>
+      </div>
+    </div>
+    <p class="ide-caption">Every pane is a real TMUX pane — detach,
+      resize, or drive it from a script like any other session.</p>
+    <div class="grid-2x2">
+      <div class="card">
+        <h3>Parallel AI Task Worktrees (<code>muxtree</code>)</h3>
+        <p>Spawn an ephemeral Git worktree paired with its own TMUX
+          session, so an agent can work a branch without touching your
+          working tree.</p>
+      </div>
+      <div class="card">
+        <h3>Model Context Protocol (MCP) Server</h3>
+        <p>A stdio JSON-RPC 2.0 server exposing file reads, search, shell
+          execution and diagnostics to Claude Code, Cursor, and any other
+          MCP client.</p>
+      </div>
+      <div class="card">
+        <h3>Context Packing (<code>ai-pack</code>)</h3>
+        <p>Pack a whole repository into a token-efficient XML or Markdown
+          prompt context, with no external dependencies.</p>
+      </div>
+      <div class="card">
+        <h3>Zero-Trust Capability Drop</h3>
+        <p>Runs unprivileged (UID 1000) with all root capabilities
+          dropped (<code>cap_drop: [ALL]</code>) and a read-only root
+          filesystem.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="suite" class="section">
   <div class="container">
     <h2 class="section-title text-center">Unified Multi-Language Suite</h2>
