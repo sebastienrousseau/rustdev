@@ -76,6 +76,18 @@ make mosh</code></pre>
             <td>v0.0.4</td>
           </tr>
           <tr>
+            <td><a href="https://tsdev.hyperbox.run/" class="suite-link"><strong>tsdev</strong></a></td>
+            <td>TypeScript 5.8+</td>
+            <td>pnpm, vtsls, Biome, Vitest, TMUX IDE</td>
+            <td>v0.0.1</td>
+          </tr>
+          <tr>
+            <td><a href="https://jsdev.hyperbox.run/" class="suite-link"><strong>jsdev</strong></a></td>
+            <td>Node.js 22 LTS</td>
+            <td>Biome, ESLint, Prettier, Node test runner</td>
+            <td>v0.0.1</td>
+          </tr>
+          <tr>
             <td><a href="https://pythondev.hyperbox.run/" class="suite-link"><strong>pythondev</strong></a></td>
             <td>Python 3.12+</td>
             <td>uv, ruff, mypy, pytest, debugpy, Pyright</td>
@@ -110,6 +122,12 @@ make mosh</code></pre>
             <td>Swift 6.0+</td>
             <td>Swift toolchain, SourceKit-LSP, swift-format</td>
             <td>v0.0.4</td>
+          </tr>
+          <tr>
+            <td><a href="https://llamadev.hyperbox.run/" class="suite-link"><strong>llamadev</strong></a></td>
+            <td>Ollama &amp; Local LLMs</td>
+            <td>Ollama, Python 3.12, LiteLLM, HF CLI</td>
+            <td>v0.0.1</td>
           </tr>
         </tbody>
       </table>
