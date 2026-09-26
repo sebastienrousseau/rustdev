@@ -24,8 +24,17 @@
       <a class="nav-link" href="#faq">FAQ</a>
     </nav>
     <div class="header-actions">
-      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light and dark mode theme">
-        <span class="theme-icon" aria-hidden="true">◐</span>
+      <span data-ssg-search></span>
+      <button
+        class="theme-toggle"
+        id="mode-toggle"
+        type="button"
+        data-label-light="Light"
+        data-label-dark="Dark"
+      >
+        <span class="visually-hidden">Theme</span>
+        <span class="visually-hidden" id="mode-state" data-label-system="System">System</span>
+        <span class="theme-icon" aria-hidden="true"></span>
       </button>
       <a class="btn btn-outline btn-sm" href="https://github.com/sebastienrousseau/{{name}}" target="_blank" rel="noopener noreferrer" aria-label="View {{name}} on GitHub">GitHub</a>
       <a class="btn btn-primary btn-sm" href="#quickstart">Get Started</a>
